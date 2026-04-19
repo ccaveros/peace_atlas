@@ -44,3 +44,81 @@ $headings-font-weight:   600;
 .panel-tabset > .tab-content {
   padding-top: 0.5rem;
 }
+
+// Navbar refinements
+.navbar {
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+  letter-spacing: 0.01em;
+}
+.navbar-brand {
+  font-weight: 600;
+}
+.navbar .nav-link {
+  font-size: 0.95rem;
+  padding-left: 0.9rem !important;
+  padding-right: 0.9rem !important;
+}
+
+// Page header (title + subtitle)
+.quarto-title > h1.title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  border-bottom: 3px solid $accent;
+  padding-bottom: 0.35rem;
+  display: inline-block;
+}
+.quarto-title .subtitle {
+  color: #6b7680;
+  font-weight: 400;
+  font-size: 1.05rem;
+  margin-top: 0.25rem;
+}
+
+// Section headers
+h2 {
+  margin-top: 2.2rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid #e5e9ee;
+  color: $primary;
+}
+h3 { color: $primary; margin-top: 1.6rem; }
+
+// Tables: subtle zebra + compact rows
+.table {
+  font-size: 0.9rem;
+}
+.table thead th {
+  background: #f1f4f7;
+  border-bottom: 2px solid $secondary;
+  font-weight: 600;
+}
+
+// Figure captions
+.figure-caption, figcaption {
+  color: #6b7680;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+// Callouts — softer
+.callout {
+  border-radius: 6px;
+}
+
+// Code blocks
+pre.sourceCode {
+  border-left: 3px solid $secondary;
+  background: #fbfbfb;
+}
+
+// Footer
+.page-footer {
+  font-size: 0.85rem;
+}
+
+// Cards / map containers shadow on hover
+.map-container:hover {
+  box-shadow: 0 3px 10px rgba(26,46,68,0.14);
+  transition: box-shadow 0.2s ease;
+}

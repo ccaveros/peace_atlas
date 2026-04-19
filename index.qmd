@@ -49,7 +49,7 @@ These 170 municipalities -- the unit of analysis throughout this site -- are not
 
 ---
 
-## Panel Summary
+## Dataset at a glance
 
 The dataset is a **long-format panel** of `r length(unique(panel$dane_code))` PDET municipalities over `r length(unique(panel$year))` years (`r min(panel$year)`--`r max(panel$year)`) with `r ncol(panel) - 2` data variables organized into 5 categories:
 

@@ -1,5 +1,5 @@
 ---
-title: "Panel 1 · Variable Atlas"
+title: "Variable Atlas"
 subtitle: "Choropleth per category · Global Moran's I · Missingness map"
 date: last-modified
 ---

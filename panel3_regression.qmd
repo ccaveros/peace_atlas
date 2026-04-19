@@ -1,5 +1,5 @@
 ---
-title: "Panel 3 · Regression Models"
+title: "Spatial Regression Models"
 subtitle: "SLM · SEM · SDM · Spatial Regime · EFA/IRT latent composite"
 date: last-modified
 ---

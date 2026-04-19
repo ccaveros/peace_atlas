@@ -13,20 +13,22 @@ website:
     left:
       - href: index.qmd
         text: "Overview"
-      - href: panel1_atlas.qmd
-        text: "Panel 1 · Variable Atlas"
       - href: descriptives.qmd
         text: "Descriptives"
+      - href: panel1_atlas.qmd
+        text: "Atlas"
       - href: panel2_bivariate.qmd
-        text: "Panel 2 · Bivariate & Spatial"
+        text: "Bivariate & Spatial"
       - href: panel3_regression.qmd
-        text: "Panel 3 · Regression Models"
+        text: "Regression"
       - href: explorer.qmd
         text: "Explorer"
-      - href: audit.qmd
-        text: "Data Audit"
-      - href: codebook.qmd
-        text: "Codebook"
+      - text: "Reference"
+        menu:
+          - href: codebook.qmd
+            text: "Codebook"
+          - href: audit.qmd
+            text: "Data Audit"
     right:
       - icon: github
         href: "https://github.com/ccaveros/peace_atlas"
