@@ -1108,3 +1108,233 @@ if (!is.null(factor_scores)) {
       "Run 06_latent_variable_analysis.R and 10_latent_dispute_resolution.R.\n")
 }
 ```
+
+---
+
+## §3.11 Multi-outcome Regression Stack
+
+::: {.callout-note collapse="true"}
+## Why separate models per outcome?
+
+The latent-variable analysis (see `output/latent_dispute_resolution_report.md`) shows the J_ dispute-resolution indicators do **not** cohere on a single factor: parallel analysis extracts 4 factors, Cronbach's α (raw) = 0.45, and the 2-factor oblimin solution splits institutional presence (SLJ) from violence absence with Φ = 0.04. That means a pooled latent composite would mask heterogeneity. Here we re-run the baseline OLS separately for each J_ outcome to see whether PDET investment and APC aid predict some outcomes but not others.
+:::
+
+```{r multi-outcome}
+#| label: multi-outcome
+#| message: false
+#| warning: false
+
+j_outcomes <- c(
+  "J_n_conciliadores__concil",
+  "J_n_justice_rooms__slj",
+  "J_n_restitution_sentences__urt",
+  "J_land_disputes_total__fiscalia"
+)
+j_outcomes <- j_outcomes[j_outcomes %in% names(reg_base)]
+
+rhs <- paste(
+  "P_tratado_acum__art_inv",
+  "P_log_dosis_acum__art_inv",
+  "log1p(P_aid_usd__apc)",
+  "log1p(V_conflict_events_all__ucdp)",
+  "S_nbi__dnp",
+  "log1p(S_pop_total__dnp)",
+  "G_terrain_ruggedness__prio",
+  "G_indigenous_pct_covered__ant",
+  sep = " + "
+)
+
+multi_results <- purrr::map_dfr(j_outcomes, function(yv) {
+  f <- stats::as.formula(paste0("log1p(", yv, ") ~ ", rhs))
+  m <- tryCatch(lm(f, data = reg_base), error = function(e) NULL)
+  if (is.null(m)) return(tibble::tibble())
+  broom::tidy(m) |>
+    dplyr::mutate(outcome = yv, n = nobs(m), r2 = round(summary(m)$r.squared, 3))
+})
+
+if (nrow(multi_results) > 0) {
+  tab <- multi_results |>
+    dplyr::mutate(
+      estimate  = round(estimate, 3),
+      std.error = round(std.error, 3),
+      p.value   = round(p.value, 4),
+      sig = dplyr::case_when(
+        p.value < 0.01 ~ "**",
+        p.value < 0.05 ~ "*",
+        p.value < 0.10 ~ ".",
+        TRUE ~ ""
+      )
+    ) |>
+    dplyr::select(outcome, term, estimate, std.error, p.value, sig, n, r2)
+
+  DT::datatable(
+    tab,
+    caption  = "Table 3.11 - OLS coefficients across J_ outcomes (P_ investment + APC aid)",
+    rownames = FALSE,
+    filter   = "top",
+    options  = list(pageLength = 15, order = list(list(0, "asc"), list(1, "asc"))),
+    class    = "compact stripe"
+  )
+}
+```
+
+---
+
+## §3.12 Callaway & Sant'Anna DiD - APC aid as treatment
+
+::: {.callout-note collapse="true"}
+## Why CS DiD and why APC aid?
+
+PDET investment is assigned to all 170 municipalities by design, so there is no within-PDET never-treated comparison. APC international aid, by contrast, enters at different years (2018, 2019, 2020) and 16 PDET munis never receive any APC flow in the panel window - a usable comparison group. The staggered CS estimator (Callaway & Sant'Anna 2021) uses **not-yet-treated** munis as controls and returns group-time ATTs, sidestepping the negative-weights problem of TWFE under heterogeneous effects. We also run a continuous-dose event study (Callaway, Goodman-Bacon, Sant'Anna 2024 framework) on log APC dollars with two-way fixed effects and year dummies.
+:::
+
+```{r cs-did-staggered}
+#| label: cs-did-staggered
+#| message: false
+#| warning: false
+
+have_did <- requireNamespace("did", quietly = TRUE)
+have_fixest <- requireNamespace("fixest", quietly = TRUE)
+
+if (!have_did || !have_fixest) {
+  cat("Install packages 'did' and 'fixest' to run §3.12.\n")
+} else {
+  # Build treatment timing: first year APC aid > 0 per muni
+  treat_timing <- panel |>
+    dplyr::filter(!is.na(P_aid_usd__apc), P_aid_usd__apc > 0) |>
+    dplyr::group_by(dane_code) |>
+    dplyr::summarise(first_treat = min(year, na.rm = TRUE), .groups = "drop")
+
+  did_panel <- panel |>
+    dplyr::left_join(treat_timing, by = "dane_code") |>
+    dplyr::mutate(
+      first_treat = ifelse(is.na(first_treat), 0L, as.integer(first_treat)),
+      id_num      = as.integer(factor(dane_code))
+    ) |>
+    dplyr::filter(year >= 2014, year <= 2023)   # focus around treatment window
+
+  cs_outcomes <- c(
+    "J_n_conciliadores__concil",
+    "J_n_justice_rooms__slj",
+    "J_n_restitution_sentences__urt"
+  )
+  cs_outcomes <- cs_outcomes[cs_outcomes %in% names(did_panel)]
+
+  cs_summary <- purrr::map_dfr(cs_outcomes, function(yv) {
+    d <- did_panel |>
+      dplyr::mutate(.y = log1p(.data[[yv]])) |>
+      dplyr::filter(!is.na(.y))
+
+    # Keep only balanced-ish subset: munis present in every year
+    keep <- d |>
+      dplyr::count(dane_code) |>
+      dplyr::filter(n == length(unique(d$year))) |>
+      dplyr::pull(dane_code)
+    d <- d |> dplyr::filter(dane_code %in% keep)
+
+    if (nrow(d) < 50 || length(unique(d$first_treat[d$first_treat > 0])) < 2) {
+      return(tibble::tibble(outcome = yv, note = "insufficient variation"))
+    }
+
+    res <- tryCatch(
+      did::att_gt(
+        yname         = ".y",
+        tname         = "year",
+        idname        = "id_num",
+        gname         = "first_treat",
+        data          = as.data.frame(d),
+        control_group = "notyettreated",
+        panel         = TRUE,
+        allow_unbalanced_panel = TRUE,
+        est_method    = "dr",
+        bstrap        = FALSE
+      ),
+      error = function(e) NULL
+    )
+    if (is.null(res)) return(tibble::tibble(outcome = yv, note = "att_gt failed"))
+
+    agg <- tryCatch(
+      did::aggte(res, type = "simple", na.rm = TRUE),
+      error = function(e) NULL
+    )
+    dyn <- tryCatch(
+      did::aggte(res, type = "dynamic", na.rm = TRUE),
+      error = function(e) NULL
+    )
+
+    tibble::tibble(
+      outcome       = yv,
+      att_overall   = if (!is.null(agg)) round(agg$overall.att, 3) else NA_real_,
+      se_overall    = if (!is.null(agg)) round(agg$overall.se, 3) else NA_real_,
+      att_dynamic_0 = if (!is.null(dyn) && 0 %in% dyn$egt) round(dyn$att.egt[dyn$egt == 0], 3) else NA_real_,
+      att_dynamic_1 = if (!is.null(dyn) && 1 %in% dyn$egt) round(dyn$att.egt[dyn$egt == 1], 3) else NA_real_,
+      att_dynamic_2 = if (!is.null(dyn) && 2 %in% dyn$egt) round(dyn$att.egt[dyn$egt == 2], 3) else NA_real_,
+      n_units       = length(unique(d$dane_code))
+    )
+  })
+
+  DT::datatable(
+    cs_summary,
+    caption  = "Table 3.12a - Callaway-Sant'Anna staggered DiD (APC aid, not-yet-treated controls)",
+    rownames = FALSE,
+    options  = list(dom = "t"),
+    class    = "compact stripe"
+  )
+}
+```
+
+```{r cs-did-continuous}
+#| label: cs-did-continuous
+#| message: false
+#| warning: false
+
+if (have_fixest) {
+  # Continuous-dose event study: log APC dose x year dummies, TWFE
+  cont_panel <- panel |>
+    dplyr::mutate(
+      log_apc = log1p(ifelse(is.na(P_aid_usd__apc), 0, P_aid_usd__apc))
+    ) |>
+    dplyr::filter(year >= 2014, year <= 2023)
+
+  cont_outcomes <- c(
+    "J_n_conciliadores__concil",
+    "J_n_justice_rooms__slj",
+    "J_n_restitution_sentences__urt"
+  )
+  cont_outcomes <- cont_outcomes[cont_outcomes %in% names(cont_panel)]
+
+  cont_tab <- purrr::map_dfr(cont_outcomes, function(yv) {
+    d <- cont_panel |>
+      dplyr::mutate(.y = log1p(.data[[yv]])) |>
+      dplyr::filter(!is.na(.y), !is.na(log_apc))
+    if (nrow(d) < 100) return(tibble::tibble(outcome = yv, note = "too few obs"))
+
+    f <- stats::as.formula(".y ~ log_apc | dane_code + year")
+    m <- tryCatch(fixest::feols(f, data = d, cluster = ~dane_code),
+                  error = function(e) NULL)
+    if (is.null(m)) return(tibble::tibble(outcome = yv, note = "feols failed"))
+
+    co <- broom::tidy(m)
+    co |>
+      dplyr::filter(term == "log_apc") |>
+      dplyr::mutate(
+        outcome   = yv,
+        estimate  = round(estimate, 3),
+        std.error = round(std.error, 3),
+        p.value   = round(p.value, 4),
+        n         = nobs(m)
+      ) |>
+      dplyr::select(outcome, term, estimate, std.error, p.value, n)
+  })
+
+  DT::datatable(
+    cont_tab,
+    caption  = "Table 3.12b - Continuous-dose DiD: log APC aid on log J_ outcome (TWFE, year + muni FE, clustered SE)",
+    rownames = FALSE,
+    options  = list(dom = "t"),
+    class    = "compact stripe"
+  )
+}
+```
+
+**Interpretation note.** Staggered results apply to the **extensive margin** (ever receiving APC aid); continuous-dose results apply to the **intensive margin** (log dollars, conditional on both fixed effects). A null staggered result combined with a positive continuous result would suggest that what matters is how much aid flows, not merely whether any flows. The reverse pattern would suggest a one-time institutional signal with no dose-response.
