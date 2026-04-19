@@ -1016,17 +1016,28 @@ Exploratory factor analysis was run separately to extract latent dimensions from
 #| message: false
 #| warning: false
 
-factor_path <- here::here("output", "factor_scores.csv")
+efa_path <- here::here("output", "efa_factor_scores.csv")
+disp_path <- here::here("output", "latent_dispute_resolution.csv")
+factor_scores <- NULL
+if (file.exists(efa_path)) {
+  factor_scores <- readr::read_csv(efa_path, show_col_types = FALSE) |>
+    dplyr::mutate(dane_code = as.character(dane_code))
+}
+if (file.exists(disp_path)) {
+  disp <- readr::read_csv(disp_path, show_col_types = FALSE) |>
+    dplyr::mutate(dane_code = as.character(dane_code)) |>
+    dplyr::select(dane_code, disp_res_latent = latent_score)
+  factor_scores <- if (is.null(factor_scores)) disp else
+    dplyr::full_join(factor_scores, disp, by = "dane_code")
+}
 
-if (file.exists(factor_path)) {
-  factor_scores <- readr::read_csv(factor_path, show_col_types = FALSE)
+if (!is.null(factor_scores)) {
   cat(glue::glue(
-    "Loaded factor scores: {nrow(factor_scores)} rows x {ncol(factor_scores)} columns\n",
-    "Columns: {paste(names(factor_scores), collapse=', ')}\n\n"
+    "Loaded factor scores: {nrow(factor_scores)} rows x {ncol(factor_scores)} columns\n\n"
   ))
 
-  # Identify factor columns (assumed to start with "MR" or "PA" or "Factor" or "F")
-  factor_cols <- names(factor_scores)[grepl("^(MR|PA|Factor|F)[0-9]", names(factor_scores))]
+  # Factor columns: EFA output uses `score_*`, our dispute latent is `disp_res_latent`
+  factor_cols <- names(factor_scores)[grepl("^(score_|disp_res_|MR|PA|Factor|F[0-9])", names(factor_scores))]
   if (length(factor_cols) == 0) {
     # Fall back: any numeric columns other than dane_code/year/id
     factor_cols <- setdiff(
@@ -1093,12 +1104,7 @@ if (file.exists(factor_path)) {
   }
 
 } else {
-  cat(glue::glue(
-    "Factor scores file not found: {factor_path}\n\n",
-    "To generate factor scores:\n",
-    "  1. Run the EFA script (e.g., 02. analysis/efa_peace_composite.R)\n",
-    "  2. Save factor scores as output/factor_scores.csv with a dane_code column\n",
-    "  3. Re-render this panel to populate this section\n"
-  ))
+  cat("Neither efa_factor_scores.csv nor latent_dispute_resolution.csv found in output/.\n",
+      "Run 06_latent_variable_analysis.R and 10_latent_dispute_resolution.R.\n")
 }
 ```

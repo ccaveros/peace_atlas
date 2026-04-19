@@ -13,70 +13,24 @@ library(spdep)
 # Toggle TRUE/FALSE to show/hide variables in the explorer.
 # Edit this list to control what appears in the dropdown.
 
-EXPLORER_VARS <- c(
-  # ── V: Violence & Conflict ──
-  # Set TRUE to show on website, FALSE to hide. Toggle as needed.
-  "V_selective_killing_cases__cnmh"        = TRUE,
-  "V_massacre_cases__cnmh"                 = TRUE,
-  "V_forced_disappearance_cases__cnmh"     = TRUE,
-  "V_kidnapping_cases__cnmh"               = TRUE,
-  "V_sexual_violence_cases__cnmh"          = TRUE,
-  "V_landmine_cases__cnmh"                 = TRUE,
-  "V_child_recruitment_cases__cnmh"        = TRUE,
-  "V_conflict_events_all__ucdp"            = TRUE,
-  "V_battle_deaths_all__ucdp"              = TRUE,
-  "V_homicides_mean__jep"                  = TRUE,
-  "V_false_positive_cases__cerac"          = TRUE,
-  "V_extrajudicial_executions__cerac"      = TRUE,
-  "V_territorial_control_status__aponte"   = TRUE,
-  "V_coca_cultivation__aponte"             = TRUE,
-  "V_criminal_pact__daly"                  = TRUE,
-  "V_political_violence_index__daly"       = TRUE,
+# Dynamic: include ALL numeric V_/P_/J_/S_/G_ variables with enough data.
+all_vars <- setdiff(names(panel), c("dane_code", "year", "muni_name"))
+numeric_vars <- all_vars[sapply(panel[all_vars], is.numeric)]
+cat_vars_all <- numeric_vars[grepl("^[VPJSG]_", numeric_vars)]
 
-  # ── P: Peacebuilding & Implementation ──
-  "P_impl_mean_all_pilars__art"            = TRUE,
-  "P_impl_education__art"                  = TRUE,
-  "P_impl_reconciliation__art"             = TRUE,
-  "P_impl_security_guarantees__art"        = TRUE,
-  "P_pilar1_investment_cop__art"           = TRUE,
-  "P_n_projects__art"                      = TRUE,
-  "P_investment_total_cop__art"            = TRUE,
-  "P_aid_usd__apc"                         = TRUE,
-  "P_n_interventions__apc"                 = TRUE,
-  "P_n_initiatives_total__pdet"            = TRUE,
-  "P_n_memory_initiatives__cnmh"           = TRUE,
+# Drop vars with fewer than 5 non-NA munis (muni-mean basis)
+muni_means <- panel |>
+  dplyr::group_by(dane_code) |>
+  dplyr::summarise(dplyr::across(dplyr::all_of(cat_vars_all),
+                                  ~ if (all(is.na(.x))) NA_real_ else mean(.x, na.rm = TRUE)),
+                   .groups = "drop")
 
-  # ── J: Justice & Dispute Resolution ──
-  "J_n_justice_rooms__slj"                 = TRUE,
-  "J_slj_present__slj"                     = TRUE,
-  "J_n_cases_processed__casjust"           = TRUE,
-  "J_n_conciliadores__concil"              = TRUE,
-  "J_n_conciliation_requests__concil"      = TRUE,
-  "J_n_restitution_sentences__urt"         = TRUE,
-
-  # ── S: Socioeconomic ──
-  "S_pop_total__dnp"                       = TRUE,
-  "S_gdp_percapita_constant__dnp"          = TRUE,
-  "S_nbi__dnp"                             = TRUE,
-  "S_ipm__dnp"                             = TRUE,
-  "S_poverty_headcount__dnp"               = TRUE,
-  "S_gini_land__igac"                      = TRUE,
-  "S_income_total_pc__dnp"                 = TRUE,
-  "S_tax_income_pc__dnp"                   = TRUE,
-  "S_ethnic_minority_share__dnp"           = TRUE,
-
-  # ── G: Geographic ──
-  "G_terrain_ruggedness__prio"             = TRUE,
-  "G_nightlight__prio"                     = TRUE,
-  "G_forest_share__prio"                   = TRUE,
-  "G_indigenous_pct_covered__ant"          = TRUE,
-  "G_afro_pct_covered__ant"               = TRUE,
-  "G_peasant_pct_covered__ant"             = TRUE
-)
-
-# Filter to enabled variables that exist in the panel
-enabled_vars <- names(EXPLORER_VARS)[EXPLORER_VARS]
-enabled_vars <- intersect(enabled_vars, names(panel))
+enabled_vars <- cat_vars_all[vapply(cat_vars_all, function(v) {
+  x <- muni_means[[v]]
+  ok <- sum(!is.na(x)) >= 5 &&
+    suppressWarnings(var(x, na.rm = TRUE)) > 0
+  isTRUE(ok)
+}, logical(1))]
 
 # ── Category definitions ──
 CAT_INFO <- list(
@@ -96,14 +50,15 @@ vars_by_cat <- split(enabled_vars,
 # per variable and overflowed V8's ~512MB string buffer during render).
 build_cat_map <- function(cat_vars, viridis_option = "C") {
   if (length(cat_vars) == 0) return(NULL)
-
-  default_year <- max(panel$year)
   numeric_vars <- cat_vars[sapply(panel[cat_vars], is.numeric)]
   if (length(numeric_vars) == 0) return(NULL)
 
+  # Muni-mean across all available years (consistent with Atlas)
   cross <- panel |>
-    dplyr::filter(year == default_year) |>
-    dplyr::select(dane_code, dplyr::all_of(numeric_vars))
+    dplyr::group_by(dane_code) |>
+    dplyr::summarise(dplyr::across(dplyr::all_of(numeric_vars),
+                                    ~ if (all(is.na(.x))) NA_real_ else mean(.x, na.rm = TRUE)),
+                     .groups = "drop")
 
   map_sf <- pdet_munis |>
     dplyr::left_join(cross, by = "dane_code")
@@ -151,7 +106,7 @@ build_cat_map <- function(cat_vars, viridis_option = "C") {
                                                 margin = ggplot2::margin(b = 3)),
       plot.margin      = ggplot2::margin(4, 4, 4, 4)
     ) +
-    ggplot2::labs(caption = paste0("Year: ", default_year))
+    ggplot2::labs(caption = "Municipality mean across all available years")
 }
 ```
 

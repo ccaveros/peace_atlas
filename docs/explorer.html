@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-04-18">
+<meta name="dcterms.date" content="2026-04-19">
 
 <title>Variable Explorer – Peace Atlas · PDET Colombia</title>
 <style>
@@ -245,7 +245,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 18, 2026</p>
+      <p class="date">April 19, 2026</p>
     </div>
   </div>
   
@@ -1149,496 +1149,451 @@ Tip
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Toggle TRUE/FALSE to show/hide variables in the explorer.</span></span>
 <span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Edit this list to control what appears in the dropdown.</span></span>
 <span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>EXPLORER_VARS <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ── V: Violence &amp; Conflict ──</span></span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set TRUE to show on website, FALSE to hide. Toggle as needed.</span></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_selective_killing_cases__cnmh"</span>        <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_massacre_cases__cnmh"</span>                 <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_forced_disappearance_cases__cnmh"</span>     <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_kidnapping_cases__cnmh"</span>               <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_sexual_violence_cases__cnmh"</span>          <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_landmine_cases__cnmh"</span>                 <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_child_recruitment_cases__cnmh"</span>        <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_conflict_events_all__ucdp"</span>            <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_battle_deaths_all__ucdp"</span>              <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_homicides_mean__jep"</span>                  <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_false_positive_cases__cerac"</span>          <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_extrajudicial_executions__cerac"</span>      <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_territorial_control_status__aponte"</span>   <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_coca_cultivation__aponte"</span>             <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_criminal_pact__daly"</span>                  <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>  <span class="st">"V_political_violence_index__daly"</span>       <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ── P: Peacebuilding &amp; Implementation ──</span></span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>  <span class="st">"P_impl_mean_all_pilars__art"</span>            <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>  <span class="st">"P_impl_education__art"</span>                  <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>  <span class="st">"P_impl_reconciliation__art"</span>             <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>  <span class="st">"P_impl_security_guarantees__art"</span>        <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>  <span class="st">"P_pilar1_investment_cop__art"</span>           <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>  <span class="st">"P_n_projects__art"</span>                      <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>  <span class="st">"P_investment_total_cop__art"</span>            <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>  <span class="st">"P_aid_usd__apc"</span>                         <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>  <span class="st">"P_n_interventions__apc"</span>                 <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>  <span class="st">"P_n_initiatives_total__pdet"</span>            <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>  <span class="st">"P_n_memory_initiatives__cnmh"</span>           <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ── J: Justice &amp; Dispute Resolution ──</span></span>
-<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>  <span class="st">"J_n_justice_rooms__slj"</span>                 <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>  <span class="st">"J_slj_present__slj"</span>                     <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>  <span class="st">"J_n_cases_processed__casjust"</span>           <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>  <span class="st">"J_n_conciliadores__concil"</span>              <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>  <span class="st">"J_n_conciliation_requests__concil"</span>      <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>  <span class="st">"J_n_restitution_sentences__urt"</span>         <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ── S: Socioeconomic ──</span></span>
-<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>  <span class="st">"S_pop_total__dnp"</span>                       <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>  <span class="st">"S_gdp_percapita_constant__dnp"</span>          <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>  <span class="st">"S_nbi__dnp"</span>                             <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>  <span class="st">"S_ipm__dnp"</span>                             <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>  <span class="st">"S_poverty_headcount__dnp"</span>               <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>  <span class="st">"S_gini_land__igac"</span>                      <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>  <span class="st">"S_income_total_pc__dnp"</span>                 <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>  <span class="st">"S_tax_income_pc__dnp"</span>                   <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>  <span class="st">"S_ethnic_minority_share__dnp"</span>           <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ── G: Geographic ──</span></span>
-<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>  <span class="st">"G_terrain_ruggedness__prio"</span>             <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>  <span class="st">"G_nightlight__prio"</span>                     <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a>  <span class="st">"G_forest_share__prio"</span>                   <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>  <span class="st">"G_indigenous_pct_covered__ant"</span>          <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>  <span class="st">"G_afro_pct_covered__ant"</span>               <span class="ot">=</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>  <span class="st">"G_peasant_pct_covered__ant"</span>             <span class="ot">=</span> <span class="cn">TRUE</span></span>
-<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter to enabled variables that exist in the panel</span></span>
-<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>enabled_vars <span class="ot">&lt;-</span> <span class="fu">names</span>(EXPLORER_VARS)[EXPLORER_VARS]</span>
-<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a>enabled_vars <span class="ot">&lt;-</span> <span class="fu">intersect</span>(enabled_vars, <span class="fu">names</span>(panel))</span>
-<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Category definitions ──</span></span>
-<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a>CAT_INFO <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a>  <span class="at">V =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Violence &amp; Conflict"</span>,          <span class="at">color =</span> <span class="st">"#b2182b"</span>, <span class="at">palette =</span> <span class="st">"YlOrRd"</span>),</span>
-<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a>  <span class="at">P =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Peacebuilding &amp; Implementation"</span>, <span class="at">color =</span> <span class="st">"#1b7837"</span>, <span class="at">palette =</span> <span class="st">"YlGn"</span>),</span>
-<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a>  <span class="at">J =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Justice &amp; Dispute Resolution"</span>,  <span class="at">color =</span> <span class="st">"#2166ac"</span>, <span class="at">palette =</span> <span class="st">"Blues"</span>),</span>
-<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a>  <span class="at">S =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Socioeconomic &amp; Structural"</span>,    <span class="at">color =</span> <span class="st">"#8c510a"</span>, <span class="at">palette =</span> <span class="st">"YlOrBr"</span>),</span>
-<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a>  <span class="at">G =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Geographic &amp; Territorial"</span>,      <span class="at">color =</span> <span class="st">"#542788"</span>, <span class="at">palette =</span> <span class="st">"PuBuGn"</span>)</span>
-<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a><span class="co"># Split enabled vars by category prefix</span></span>
-<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a>vars_by_cat <span class="ot">&lt;-</span> <span class="fu">split</span>(enabled_vars,</span>
-<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">sub</span>(<span class="st">"^([VPJSG])_.*"</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">1"</span>, enabled_vars))</span>
-<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Helper: build ONE static faceted ggplot map per category ──</span></span>
-<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a><span class="co"># Replaces the prior multi-layer leaflet (which embedded full PDET GeoJSON</span></span>
-<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a><span class="co"># per variable and overflowed V8's ~512MB string buffer during render).</span></span>
-<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a>build_cat_map <span class="ot">&lt;-</span> <span class="cf">function</span>(cat_vars, <span class="at">viridis_option =</span> <span class="st">"C"</span>) {</span>
-<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(cat_vars) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a>  default_year <span class="ot">&lt;-</span> <span class="fu">max</span>(panel<span class="sc">$</span>year)</span>
-<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a>  numeric_vars <span class="ot">&lt;-</span> cat_vars[<span class="fu">sapply</span>(panel[cat_vars], is.numeric)]</span>
-<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(numeric_vars) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a>  cross <span class="ot">&lt;-</span> panel <span class="sc">|&gt;</span></span>
-<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(year <span class="sc">==</span> default_year) <span class="sc">|&gt;</span></span>
-<span id="cb10-106"><a href="#cb10-106" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(dane_code, dplyr<span class="sc">::</span><span class="fu">all_of</span>(numeric_vars))</span>
-<span id="cb10-107"><a href="#cb10-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-108"><a href="#cb10-108" aria-hidden="true" tabindex="-1"></a>  map_sf <span class="ot">&lt;-</span> pdet_munis <span class="sc">|&gt;</span></span>
-<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(cross, <span class="at">by =</span> <span class="st">"dane_code"</span>)</span>
-<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Drop variables that are all-NA at the chosen year</span></span>
-<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a>  keep_vars <span class="ot">&lt;-</span> numeric_vars[<span class="fu">vapply</span>(numeric_vars,</span>
-<span id="cb10-113"><a href="#cb10-113" aria-hidden="true" tabindex="-1"></a>                                   <span class="cf">function</span>(v) <span class="fu">any</span>(<span class="sc">!</span><span class="fu">is.na</span>(map_sf[[v]])),</span>
-<span id="cb10-114"><a href="#cb10-114" aria-hidden="true" tabindex="-1"></a>                                   <span class="fu">logical</span>(<span class="dv">1</span>))]</span>
-<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(keep_vars) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb10-116"><a href="#cb10-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-117"><a href="#cb10-117" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Long-format sf: one row per (muni × variable)</span></span>
-<span id="cb10-118"><a href="#cb10-118" aria-hidden="true" tabindex="-1"></a>  plot_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(keep_vars, <span class="cf">function</span>(v) {</span>
-<span id="cb10-119"><a href="#cb10-119" aria-hidden="true" tabindex="-1"></a>    label <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"__.*"</span>, <span class="st">""</span>, <span class="fu">gsub</span>(<span class="st">"^[VPJSG]_"</span>, <span class="st">""</span>, v))</span>
-<span id="cb10-120"><a href="#cb10-120" aria-hidden="true" tabindex="-1"></a>    map_sf <span class="sc">|&gt;</span></span>
-<span id="cb10-121"><a href="#cb10-121" aria-hidden="true" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">transmute</span>(</span>
-<span id="cb10-122"><a href="#cb10-122" aria-hidden="true" tabindex="-1"></a>        dane_code,</span>
-<span id="cb10-123"><a href="#cb10-123" aria-hidden="true" tabindex="-1"></a>        muni_name,</span>
-<span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a>        <span class="at">value     =</span> .data[[v]],</span>
-<span id="cb10-125"><a href="#cb10-125" aria-hidden="true" tabindex="-1"></a>        <span class="at">var_label =</span> label</span>
-<span id="cb10-126"><a href="#cb10-126" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb10-127"><a href="#cb10-127" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb10-128"><a href="#cb10-128" aria-hidden="true" tabindex="-1"></a>  plot_sf <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(plot_list) <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>()</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Dynamic: include ALL numeric V_/P_/J_/S_/G_ variables with enough data.</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>all_vars <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">names</span>(panel), <span class="fu">c</span>(<span class="st">"dane_code"</span>, <span class="st">"year"</span>, <span class="st">"muni_name"</span>))</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>numeric_vars <span class="ot">&lt;-</span> all_vars[<span class="fu">sapply</span>(panel[all_vars], is.numeric)]</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>cat_vars_all <span class="ot">&lt;-</span> numeric_vars[<span class="fu">grepl</span>(<span class="st">"^[VPJSG]_"</span>, numeric_vars)]</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop vars with fewer than 5 non-NA munis (muni-mean basis)</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>muni_means <span class="ot">&lt;-</span> panel <span class="sc">|&gt;</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(dane_code) <span class="sc">|&gt;</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(dplyr<span class="sc">::</span><span class="fu">across</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(cat_vars_all),</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>                                  <span class="sc">~</span> <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.na</span>(.x))) <span class="cn">NA_real_</span> <span class="cf">else</span> <span class="fu">mean</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>                   <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>enabled_vars <span class="ot">&lt;-</span> cat_vars_all[<span class="fu">vapply</span>(cat_vars_all, <span class="cf">function</span>(v) {</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> muni_means[[v]]</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  ok <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)) <span class="sc">&gt;=</span> <span class="dv">5</span> <span class="sc">&amp;&amp;</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">suppressWarnings</span>(<span class="fu">var</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">&gt;</span> <span class="dv">0</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">isTRUE</span>(ok)</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>}, <span class="fu">logical</span>(<span class="dv">1</span>))]</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Category definitions ──</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>CAT_INFO <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">V =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Violence &amp; Conflict"</span>,          <span class="at">color =</span> <span class="st">"#b2182b"</span>, <span class="at">palette =</span> <span class="st">"YlOrRd"</span>),</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">P =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Peacebuilding &amp; Implementation"</span>, <span class="at">color =</span> <span class="st">"#1b7837"</span>, <span class="at">palette =</span> <span class="st">"YlGn"</span>),</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">J =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Justice &amp; Dispute Resolution"</span>,  <span class="at">color =</span> <span class="st">"#2166ac"</span>, <span class="at">palette =</span> <span class="st">"Blues"</span>),</span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">S =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Socioeconomic &amp; Structural"</span>,    <span class="at">color =</span> <span class="st">"#8c510a"</span>, <span class="at">palette =</span> <span class="st">"YlOrBr"</span>),</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">G =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Geographic &amp; Territorial"</span>,      <span class="at">color =</span> <span class="st">"#542788"</span>, <span class="at">palette =</span> <span class="st">"PuBuGn"</span>)</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Split enabled vars by category prefix</span></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>vars_by_cat <span class="ot">&lt;-</span> <span class="fu">split</span>(enabled_vars,</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">sub</span>(<span class="st">"^([VPJSG])_.*"</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">1"</span>, enabled_vars))</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Helper: build ONE static faceted ggplot map per category ──</span></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Replaces the prior multi-layer leaflet (which embedded full PDET GeoJSON</span></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a><span class="co"># per variable and overflowed V8's ~512MB string buffer during render).</span></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>build_cat_map <span class="ot">&lt;-</span> <span class="cf">function</span>(cat_vars, <span class="at">viridis_option =</span> <span class="st">"C"</span>) {</span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(cat_vars) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>  numeric_vars <span class="ot">&lt;-</span> cat_vars[<span class="fu">sapply</span>(panel[cat_vars], is.numeric)]</span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(numeric_vars) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Muni-mean across all available years (consistent with Atlas)</span></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>  cross <span class="ot">&lt;-</span> panel <span class="sc">|&gt;</span></span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_by</span>(dane_code) <span class="sc">|&gt;</span></span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">summarise</span>(dplyr<span class="sc">::</span><span class="fu">across</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(numeric_vars),</span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>                                    <span class="sc">~</span> <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.na</span>(.x))) <span class="cn">NA_real_</span> <span class="cf">else</span> <span class="fu">mean</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>                     <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>  map_sf <span class="ot">&lt;-</span> pdet_munis <span class="sc">|&gt;</span></span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(cross, <span class="at">by =</span> <span class="st">"dane_code"</span>)</span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Drop variables that are all-NA at the chosen year</span></span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>  keep_vars <span class="ot">&lt;-</span> numeric_vars[<span class="fu">vapply</span>(numeric_vars,</span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>                                   <span class="cf">function</span>(v) <span class="fu">any</span>(<span class="sc">!</span><span class="fu">is.na</span>(map_sf[[v]])),</span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>                                   <span class="fu">logical</span>(<span class="dv">1</span>))]</span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(keep_vars) <span class="sc">==</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Long-format sf: one row per (muni × variable)</span></span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>  plot_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(keep_vars, <span class="cf">function</span>(v) {</span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>    label <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"__.*"</span>, <span class="st">""</span>, <span class="fu">gsub</span>(<span class="st">"^[VPJSG]_"</span>, <span class="st">""</span>, v))</span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a>    map_sf <span class="sc">|&gt;</span></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">transmute</span>(</span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a>        dane_code,</span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>        muni_name,</span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a>        <span class="at">value     =</span> .data[[v]],</span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a>        <span class="at">var_label =</span> label</span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a>  plot_sf <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(plot_list) <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>()</span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a>  <span class="co"># log1p transform for display (handles skew); preserve sign via pmax(0)</span></span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a>  plot_sf <span class="ot">&lt;-</span> plot_sf <span class="sc">|&gt;</span></span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">value_display =</span> <span class="fu">log1p</span>(<span class="fu">pmax</span>(value, <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))</span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a>  ncols <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="dv">3</span>L, <span class="fu">length</span>(keep_vars))</span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(plot_sf) <span class="sc">+</span></span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_sf</span>(ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">fill =</span> value_display),</span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a>                     <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.15</span>) <span class="sc">+</span></span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">scale_fill_viridis_c</span>(</span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a>      <span class="at">option   =</span> viridis_option,</span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a>      <span class="at">na.value =</span> <span class="st">"#e0e0e0"</span>,</span>
+<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a>      <span class="at">name     =</span> <span class="st">"log(1+x)"</span>,</span>
+<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a>      <span class="at">guide    =</span> ggplot2<span class="sc">::</span><span class="fu">guide_colorbar</span>(<span class="at">barwidth =</span> <span class="dv">6</span>, <span class="at">barheight =</span> <span class="fl">0.5</span>,</span>
+<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">title.position =</span> <span class="st">"top"</span>)</span>
+<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">facet_wrap</span>(<span class="sc">~</span>var_label, <span class="at">ncol =</span> ncols) <span class="sc">+</span></span>
+<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">theme_void</span>(<span class="at">base_size =</span> <span class="dv">9</span>) <span class="sc">+</span></span>
+<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">theme</span>(</span>
+<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.position  =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a>      <span class="at">strip.text       =</span> ggplot2<span class="sc">::</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">7</span>, <span class="at">face =</span> <span class="st">"bold"</span>,</span>
+<span id="cb10-106"><a href="#cb10-106" aria-hidden="true" tabindex="-1"></a>                                                <span class="at">margin =</span> ggplot2<span class="sc">::</span><span class="fu">margin</span>(<span class="at">b =</span> <span class="dv">3</span>)),</span>
+<span id="cb10-107"><a href="#cb10-107" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.margin      =</span> ggplot2<span class="sc">::</span><span class="fu">margin</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">4</span>)</span>
+<span id="cb10-108"><a href="#cb10-108" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">labs</span>(<span class="at">caption =</span> <span class="st">"Municipality mean across all available years"</span>)</span>
+<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-113"><a href="#cb10-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-114"><a href="#cb10-114" aria-hidden="true" tabindex="-1"></a><span class="fu">## Interactive Choropleth Maps</span></span>
+<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-116"><a href="#cb10-116" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip}</span>
+<span id="cb10-117"><a href="#cb10-117" aria-hidden="true" tabindex="-1"></a>**How to use this explorer**</span>
+<span id="cb10-118"><a href="#cb10-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-119"><a href="#cb10-119" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Choose a **category tab** (Violence, Peacebuilding, Justice, Socioeconomic, Geographic, or Year Comparison).</span>
+<span id="cb10-120"><a href="#cb10-120" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Each tab shows all enabled variables in that category as a **faceted map** (one small-multiple panel per variable).</span>
+<span id="cb10-121"><a href="#cb10-121" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Gray polygons = no data available for that variable in that municipality.</span>
+<span id="cb10-122"><a href="#cb10-122" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Maps show the **most recent year** with data for each variable. The Variable Atlas shows the all-years mean instead.</span>
+<span id="cb10-123"><a href="#cb10-123" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Values are shown on a log(1+x) scale to handle right-skewed count variables.</span>
+<span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-125"><a href="#cb10-125" aria-hidden="true" tabindex="-1"></a>The Year Comparison tab shows UCDP conflict events at five-year intervals to visualize the conflict trajectory from 2005 to 2024.</span>
+<span id="cb10-126"><a href="#cb10-126" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-127"><a href="#cb10-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-128"><a href="#cb10-128" aria-hidden="true" tabindex="-1"></a>---</span>
 <span id="cb10-129"><a href="#cb10-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-130"><a href="#cb10-130" aria-hidden="true" tabindex="-1"></a>  <span class="co"># log1p transform for display (handles skew); preserve sign via pmax(0)</span></span>
-<span id="cb10-131"><a href="#cb10-131" aria-hidden="true" tabindex="-1"></a>  plot_sf <span class="ot">&lt;-</span> plot_sf <span class="sc">|&gt;</span></span>
-<span id="cb10-132"><a href="#cb10-132" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">value_display =</span> <span class="fu">log1p</span>(<span class="fu">pmax</span>(value, <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))</span>
+<span id="cb10-130"><a href="#cb10-130" aria-hidden="true" tabindex="-1"></a>::: {.panel-tabset}</span>
+<span id="cb10-131"><a href="#cb10-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-132"><a href="#cb10-132" aria-hidden="true" tabindex="-1"></a><span class="fu">### Violence &amp; Conflict</span></span>
 <span id="cb10-133"><a href="#cb10-133" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-134"><a href="#cb10-134" aria-hidden="true" tabindex="-1"></a>  ncols <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="dv">3</span>L, <span class="fu">length</span>(keep_vars))</span>
-<span id="cb10-135"><a href="#cb10-135" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-136"><a href="#cb10-136" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(plot_sf) <span class="sc">+</span></span>
-<span id="cb10-137"><a href="#cb10-137" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_sf</span>(ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">fill =</span> value_display),</span>
-<span id="cb10-138"><a href="#cb10-138" aria-hidden="true" tabindex="-1"></a>                     <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.15</span>) <span class="sc">+</span></span>
-<span id="cb10-139"><a href="#cb10-139" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">scale_fill_viridis_c</span>(</span>
-<span id="cb10-140"><a href="#cb10-140" aria-hidden="true" tabindex="-1"></a>      <span class="at">option   =</span> viridis_option,</span>
-<span id="cb10-141"><a href="#cb10-141" aria-hidden="true" tabindex="-1"></a>      <span class="at">na.value =</span> <span class="st">"#e0e0e0"</span>,</span>
-<span id="cb10-142"><a href="#cb10-142" aria-hidden="true" tabindex="-1"></a>      <span class="at">name     =</span> <span class="st">"log(1+x)"</span>,</span>
-<span id="cb10-143"><a href="#cb10-143" aria-hidden="true" tabindex="-1"></a>      <span class="at">guide    =</span> ggplot2<span class="sc">::</span><span class="fu">guide_colorbar</span>(<span class="at">barwidth =</span> <span class="dv">6</span>, <span class="at">barheight =</span> <span class="fl">0.5</span>,</span>
-<span id="cb10-144"><a href="#cb10-144" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">title.position =</span> <span class="st">"top"</span>)</span>
-<span id="cb10-145"><a href="#cb10-145" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
-<span id="cb10-146"><a href="#cb10-146" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">facet_wrap</span>(<span class="sc">~</span>var_label, <span class="at">ncol =</span> ncols) <span class="sc">+</span></span>
-<span id="cb10-147"><a href="#cb10-147" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">theme_void</span>(<span class="at">base_size =</span> <span class="dv">9</span>) <span class="sc">+</span></span>
-<span id="cb10-148"><a href="#cb10-148" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">theme</span>(</span>
-<span id="cb10-149"><a href="#cb10-149" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.position  =</span> <span class="st">"bottom"</span>,</span>
-<span id="cb10-150"><a href="#cb10-150" aria-hidden="true" tabindex="-1"></a>      <span class="at">strip.text       =</span> ggplot2<span class="sc">::</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">7</span>, <span class="at">face =</span> <span class="st">"bold"</span>,</span>
-<span id="cb10-151"><a href="#cb10-151" aria-hidden="true" tabindex="-1"></a>                                                <span class="at">margin =</span> ggplot2<span class="sc">::</span><span class="fu">margin</span>(<span class="at">b =</span> <span class="dv">3</span>)),</span>
-<span id="cb10-152"><a href="#cb10-152" aria-hidden="true" tabindex="-1"></a>      <span class="at">plot.margin      =</span> ggplot2<span class="sc">::</span><span class="fu">margin</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">4</span>)</span>
-<span id="cb10-153"><a href="#cb10-153" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
-<span id="cb10-154"><a href="#cb10-154" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">labs</span>(<span class="at">caption =</span> <span class="fu">paste0</span>(<span class="st">"Year: "</span>, default_year))</span>
-<span id="cb10-155"><a href="#cb10-155" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-156"><a href="#cb10-156" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-157"><a href="#cb10-157" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-158"><a href="#cb10-158" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-159"><a href="#cb10-159" aria-hidden="true" tabindex="-1"></a><span class="fu">## Interactive Choropleth Maps</span></span>
-<span id="cb10-160"><a href="#cb10-160" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-161"><a href="#cb10-161" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip}</span>
-<span id="cb10-162"><a href="#cb10-162" aria-hidden="true" tabindex="-1"></a>**How to use this explorer**</span>
-<span id="cb10-163"><a href="#cb10-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-164"><a href="#cb10-164" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Choose a **category tab** (Violence, Peacebuilding, Justice, Socioeconomic, Geographic, or Year Comparison).</span>
-<span id="cb10-165"><a href="#cb10-165" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Each tab shows all enabled variables in that category as a **faceted map** (one small-multiple panel per variable).</span>
-<span id="cb10-166"><a href="#cb10-166" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Gray polygons = no data available for that variable in that municipality.</span>
-<span id="cb10-167"><a href="#cb10-167" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Maps show the **most recent year** with data for each variable. The Variable Atlas shows the all-years mean instead.</span>
-<span id="cb10-168"><a href="#cb10-168" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Values are shown on a log(1+x) scale to handle right-skewed count variables.</span>
-<span id="cb10-169"><a href="#cb10-169" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-170"><a href="#cb10-170" aria-hidden="true" tabindex="-1"></a>The Year Comparison tab shows UCDP conflict events at five-year intervals to visualize the conflict trajectory from 2005 to 2024.</span>
-<span id="cb10-171"><a href="#cb10-171" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb10-172"><a href="#cb10-172" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-173"><a href="#cb10-173" aria-hidden="true" tabindex="-1"></a>---</span>
-<span id="cb10-174"><a href="#cb10-174" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-175"><a href="#cb10-175" aria-hidden="true" tabindex="-1"></a>::: {.panel-tabset}</span>
-<span id="cb10-176"><a href="#cb10-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-177"><a href="#cb10-177" aria-hidden="true" tabindex="-1"></a><span class="fu">### Violence &amp; Conflict</span></span>
-<span id="cb10-178"><a href="#cb10-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-179"><a href="#cb10-179" aria-hidden="true" tabindex="-1"></a><span class="in">```{r map-violence}</span></span>
-<span id="cb10-180"><a href="#cb10-180" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 10</span></span>
-<span id="cb10-181"><a href="#cb10-181" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
-<span id="cb10-182"><a href="#cb10-182" aria-hidden="true" tabindex="-1"></a><span class="co">#| out-width: "100%"</span></span>
-<span id="cb10-183"><a href="#cb10-183" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;&amp;</span> <span class="st">"V"</span> <span class="sc">%in%</span> <span class="fu">names</span>(vars_by_cat)) {</span>
-<span id="cb10-184"><a href="#cb10-184" aria-hidden="true" tabindex="-1"></a>  <span class="fu">build_cat_map</span>(vars_by_cat[[<span class="st">"V"</span>]], <span class="st">"C"</span>)</span>
-<span id="cb10-185"><a href="#cb10-185" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-186"><a href="#cb10-186" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-187"><a href="#cb10-187" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-188"><a href="#cb10-188" aria-hidden="true" tabindex="-1"></a><span class="fu">### Peacebuilding</span></span>
-<span id="cb10-189"><a href="#cb10-189" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-190"><a href="#cb10-190" aria-hidden="true" tabindex="-1"></a><span class="in">```{r map-peace}</span></span>
-<span id="cb10-191"><a href="#cb10-191" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 9</span></span>
-<span id="cb10-192"><a href="#cb10-192" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
-<span id="cb10-193"><a href="#cb10-193" aria-hidden="true" tabindex="-1"></a><span class="co">#| out-width: "100%"</span></span>
-<span id="cb10-194"><a href="#cb10-194" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;&amp;</span> <span class="st">"P"</span> <span class="sc">%in%</span> <span class="fu">names</span>(vars_by_cat)) {</span>
-<span id="cb10-195"><a href="#cb10-195" aria-hidden="true" tabindex="-1"></a>  <span class="fu">build_cat_map</span>(vars_by_cat[[<span class="st">"P"</span>]], <span class="st">"D"</span>)</span>
-<span id="cb10-196"><a href="#cb10-196" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-197"><a href="#cb10-197" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-198"><a href="#cb10-198" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-199"><a href="#cb10-199" aria-hidden="true" tabindex="-1"></a><span class="fu">### Justice &amp; Dispute</span></span>
-<span id="cb10-200"><a href="#cb10-200" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-201"><a href="#cb10-201" aria-hidden="true" tabindex="-1"></a><span class="in">```{r map-justice}</span></span>
-<span id="cb10-202"><a href="#cb10-202" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 9</span></span>
-<span id="cb10-203"><a href="#cb10-203" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
-<span id="cb10-204"><a href="#cb10-204" aria-hidden="true" tabindex="-1"></a><span class="co">#| out-width: "100%"</span></span>
-<span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;&amp;</span> <span class="st">"J"</span> <span class="sc">%in%</span> <span class="fu">names</span>(vars_by_cat)) {</span>
-<span id="cb10-206"><a href="#cb10-206" aria-hidden="true" tabindex="-1"></a>  <span class="fu">build_cat_map</span>(vars_by_cat[[<span class="st">"J"</span>]], <span class="st">"B"</span>)</span>
-<span id="cb10-207"><a href="#cb10-207" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-209"><a href="#cb10-209" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-210"><a href="#cb10-210" aria-hidden="true" tabindex="-1"></a><span class="fu">### Socioeconomic</span></span>
-<span id="cb10-211"><a href="#cb10-211" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-212"><a href="#cb10-212" aria-hidden="true" tabindex="-1"></a><span class="in">```{r map-socio}</span></span>
-<span id="cb10-213"><a href="#cb10-213" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 9</span></span>
-<span id="cb10-214"><a href="#cb10-214" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
-<span id="cb10-215"><a href="#cb10-215" aria-hidden="true" tabindex="-1"></a><span class="co">#| out-width: "100%"</span></span>
-<span id="cb10-216"><a href="#cb10-216" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;&amp;</span> <span class="st">"S"</span> <span class="sc">%in%</span> <span class="fu">names</span>(vars_by_cat)) {</span>
-<span id="cb10-217"><a href="#cb10-217" aria-hidden="true" tabindex="-1"></a>  <span class="fu">build_cat_map</span>(vars_by_cat[[<span class="st">"S"</span>]], <span class="st">"A"</span>)</span>
-<span id="cb10-218"><a href="#cb10-218" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-219"><a href="#cb10-219" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-134"><a href="#cb10-134" aria-hidden="true" tabindex="-1"></a><span class="in">```{r map-violence}</span></span>
+<span id="cb10-135"><a href="#cb10-135" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 10</span></span>
+<span id="cb10-136"><a href="#cb10-136" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb10-137"><a href="#cb10-137" aria-hidden="true" tabindex="-1"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb10-138"><a href="#cb10-138" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;&amp;</span> <span class="st">"V"</span> <span class="sc">%in%</span> <span class="fu">names</span>(vars_by_cat)) {</span>
+<span id="cb10-139"><a href="#cb10-139" aria-hidden="true" tabindex="-1"></a>  <span class="fu">build_cat_map</span>(vars_by_cat[[<span class="st">"V"</span>]], <span class="st">"C"</span>)</span>
+<span id="cb10-140"><a href="#cb10-140" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-141"><a href="#cb10-141" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-142"><a href="#cb10-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-143"><a href="#cb10-143" aria-hidden="true" tabindex="-1"></a><span class="fu">### Peacebuilding</span></span>
+<span id="cb10-144"><a href="#cb10-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-145"><a href="#cb10-145" aria-hidden="true" tabindex="-1"></a><span class="in">```{r map-peace}</span></span>
+<span id="cb10-146"><a href="#cb10-146" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 9</span></span>
+<span id="cb10-147"><a href="#cb10-147" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb10-148"><a href="#cb10-148" aria-hidden="true" tabindex="-1"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb10-149"><a href="#cb10-149" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;&amp;</span> <span class="st">"P"</span> <span class="sc">%in%</span> <span class="fu">names</span>(vars_by_cat)) {</span>
+<span id="cb10-150"><a href="#cb10-150" aria-hidden="true" tabindex="-1"></a>  <span class="fu">build_cat_map</span>(vars_by_cat[[<span class="st">"P"</span>]], <span class="st">"D"</span>)</span>
+<span id="cb10-151"><a href="#cb10-151" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-152"><a href="#cb10-152" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-153"><a href="#cb10-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-154"><a href="#cb10-154" aria-hidden="true" tabindex="-1"></a><span class="fu">### Justice &amp; Dispute</span></span>
+<span id="cb10-155"><a href="#cb10-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-156"><a href="#cb10-156" aria-hidden="true" tabindex="-1"></a><span class="in">```{r map-justice}</span></span>
+<span id="cb10-157"><a href="#cb10-157" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 9</span></span>
+<span id="cb10-158"><a href="#cb10-158" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb10-159"><a href="#cb10-159" aria-hidden="true" tabindex="-1"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb10-160"><a href="#cb10-160" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;&amp;</span> <span class="st">"J"</span> <span class="sc">%in%</span> <span class="fu">names</span>(vars_by_cat)) {</span>
+<span id="cb10-161"><a href="#cb10-161" aria-hidden="true" tabindex="-1"></a>  <span class="fu">build_cat_map</span>(vars_by_cat[[<span class="st">"J"</span>]], <span class="st">"B"</span>)</span>
+<span id="cb10-162"><a href="#cb10-162" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-163"><a href="#cb10-163" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-164"><a href="#cb10-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-165"><a href="#cb10-165" aria-hidden="true" tabindex="-1"></a><span class="fu">### Socioeconomic</span></span>
+<span id="cb10-166"><a href="#cb10-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-167"><a href="#cb10-167" aria-hidden="true" tabindex="-1"></a><span class="in">```{r map-socio}</span></span>
+<span id="cb10-168"><a href="#cb10-168" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 9</span></span>
+<span id="cb10-169"><a href="#cb10-169" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb10-170"><a href="#cb10-170" aria-hidden="true" tabindex="-1"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb10-171"><a href="#cb10-171" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;&amp;</span> <span class="st">"S"</span> <span class="sc">%in%</span> <span class="fu">names</span>(vars_by_cat)) {</span>
+<span id="cb10-172"><a href="#cb10-172" aria-hidden="true" tabindex="-1"></a>  <span class="fu">build_cat_map</span>(vars_by_cat[[<span class="st">"S"</span>]], <span class="st">"A"</span>)</span>
+<span id="cb10-173"><a href="#cb10-173" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-174"><a href="#cb10-174" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-175"><a href="#cb10-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-176"><a href="#cb10-176" aria-hidden="true" tabindex="-1"></a><span class="fu">### Geographic</span></span>
+<span id="cb10-177"><a href="#cb10-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-178"><a href="#cb10-178" aria-hidden="true" tabindex="-1"></a><span class="in">```{r map-geo}</span></span>
+<span id="cb10-179"><a href="#cb10-179" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 9</span></span>
+<span id="cb10-180"><a href="#cb10-180" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb10-181"><a href="#cb10-181" aria-hidden="true" tabindex="-1"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb10-182"><a href="#cb10-182" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;&amp;</span> <span class="st">"G"</span> <span class="sc">%in%</span> <span class="fu">names</span>(vars_by_cat)) {</span>
+<span id="cb10-183"><a href="#cb10-183" aria-hidden="true" tabindex="-1"></a>  <span class="fu">build_cat_map</span>(vars_by_cat[[<span class="st">"G"</span>]], <span class="st">"E"</span>)</span>
+<span id="cb10-184"><a href="#cb10-184" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-185"><a href="#cb10-185" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-186"><a href="#cb10-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-187"><a href="#cb10-187" aria-hidden="true" tabindex="-1"></a><span class="fu">### Year Comparison</span></span>
+<span id="cb10-188"><a href="#cb10-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-189"><a href="#cb10-189" aria-hidden="true" tabindex="-1"></a><span class="in">```{r year-panels}</span></span>
+<span id="cb10-190"><a href="#cb10-190" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 6</span></span>
+<span id="cb10-191"><a href="#cb10-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-192"><a href="#cb10-192" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="st">"V_conflict_events_all__ucdp"</span> <span class="sc">%in%</span> <span class="fu">names</span>(panel)) {</span>
+<span id="cb10-193"><a href="#cb10-193" aria-hidden="true" tabindex="-1"></a>  key_years <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2005</span>, <span class="dv">2010</span>, <span class="dv">2015</span>, <span class="dv">2020</span>, <span class="dv">2024</span>)</span>
+<span id="cb10-194"><a href="#cb10-194" aria-hidden="true" tabindex="-1"></a>  key_var <span class="ot">&lt;-</span> <span class="st">"V_conflict_events_all__ucdp"</span></span>
+<span id="cb10-195"><a href="#cb10-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-196"><a href="#cb10-196" aria-hidden="true" tabindex="-1"></a>  year_data <span class="ot">&lt;-</span> panel <span class="sc">|&gt;</span></span>
+<span id="cb10-197"><a href="#cb10-197" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(year <span class="sc">%in%</span> key_years) <span class="sc">|&gt;</span></span>
+<span id="cb10-198"><a href="#cb10-198" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(dane_code, year, <span class="at">value =</span> <span class="fu">all_of</span>(key_var))</span>
+<span id="cb10-199"><a href="#cb10-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-200"><a href="#cb10-200" aria-hidden="true" tabindex="-1"></a>  map_data <span class="ot">&lt;-</span> pdet_munis <span class="sc">|&gt;</span></span>
+<span id="cb10-201"><a href="#cb10-201" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(year_data, <span class="at">by =</span> <span class="st">"dane_code"</span>)</span>
+<span id="cb10-202"><a href="#cb10-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-203"><a href="#cb10-203" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(map_data) <span class="sc">+</span></span>
+<span id="cb10-204"><a href="#cb10-204" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> value), <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">size =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"inferno"</span>, <span class="at">na.value =</span> <span class="st">"#d9d9d9"</span>,</span>
+<span id="cb10-206"><a href="#cb10-206" aria-hidden="true" tabindex="-1"></a>                          <span class="at">name =</span> <span class="fu">gsub</span>(<span class="st">"__.*"</span>, <span class="st">""</span>, <span class="fu">gsub</span>(<span class="st">"^V_"</span>, <span class="st">""</span>, key_var))) <span class="sc">+</span></span>
+<span id="cb10-207"><a href="#cb10-207" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>year, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb10-209"><a href="#cb10-209" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
+<span id="cb10-210"><a href="#cb10-210" aria-hidden="true" tabindex="-1"></a>      <span class="at">axis.text =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb10-211"><a href="#cb10-211" aria-hidden="true" tabindex="-1"></a>      <span class="at">axis.ticks =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb10-212"><a href="#cb10-212" aria-hidden="true" tabindex="-1"></a>      <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb10-213"><a href="#cb10-213" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.position =</span> <span class="st">"bottom"</span></span>
+<span id="cb10-214"><a href="#cb10-214" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb10-215"><a href="#cb10-215" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"UCDP Conflict Events:"</span>, <span class="fu">paste</span>(key_years, <span class="at">collapse =</span> <span class="st">", "</span>)))</span>
+<span id="cb10-216"><a href="#cb10-216" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-217"><a href="#cb10-217" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-218"><a href="#cb10-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-219"><a href="#cb10-219" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb10-220"><a href="#cb10-220" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-221"><a href="#cb10-221" aria-hidden="true" tabindex="-1"></a><span class="fu">### Geographic</span></span>
+<span id="cb10-221"><a href="#cb10-221" aria-hidden="true" tabindex="-1"></a>---</span>
 <span id="cb10-222"><a href="#cb10-222" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-223"><a href="#cb10-223" aria-hidden="true" tabindex="-1"></a><span class="in">```{r map-geo}</span></span>
-<span id="cb10-224"><a href="#cb10-224" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 9</span></span>
-<span id="cb10-225"><a href="#cb10-225" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
-<span id="cb10-226"><a href="#cb10-226" aria-hidden="true" tabindex="-1"></a><span class="co">#| out-width: "100%"</span></span>
-<span id="cb10-227"><a href="#cb10-227" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;&amp;</span> <span class="st">"G"</span> <span class="sc">%in%</span> <span class="fu">names</span>(vars_by_cat)) {</span>
-<span id="cb10-228"><a href="#cb10-228" aria-hidden="true" tabindex="-1"></a>  <span class="fu">build_cat_map</span>(vars_by_cat[[<span class="st">"G"</span>]], <span class="st">"E"</span>)</span>
-<span id="cb10-229"><a href="#cb10-229" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-230"><a href="#cb10-230" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-231"><a href="#cb10-231" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-232"><a href="#cb10-232" aria-hidden="true" tabindex="-1"></a><span class="fu">### Year Comparison</span></span>
+<span id="cb10-223"><a href="#cb10-223" aria-hidden="true" tabindex="-1"></a><span class="fu">## Spatial Autocorrelation: Justice &amp; Dispute Variables {.tabset}</span></span>
+<span id="cb10-224"><a href="#cb10-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-225"><a href="#cb10-225" aria-hidden="true" tabindex="-1"></a>Global Moran's I and LISA cluster maps for all **J_** (Justice &amp; Dispute Resolution) variables. These diagnostics assess whether dispute resolution capacity clusters spatially --- a prerequisite for constructing a latent dispute resolution variable.</span>
+<span id="cb10-226"><a href="#cb10-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-227"><a href="#cb10-227" aria-hidden="true" tabindex="-1"></a>::: {.panel-tabset}</span>
+<span id="cb10-228"><a href="#cb10-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-229"><a href="#cb10-229" aria-hidden="true" tabindex="-1"></a><span class="fu">### Global Moran's I</span></span>
+<span id="cb10-230"><a href="#cb10-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-231"><a href="#cb10-231" aria-hidden="true" tabindex="-1"></a><span class="in">```{r moran-global}</span></span>
+<span id="cb10-232"><a href="#cb10-232" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
 <span id="cb10-233"><a href="#cb10-233" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-234"><a href="#cb10-234" aria-hidden="true" tabindex="-1"></a><span class="in">```{r year-panels}</span></span>
-<span id="cb10-235"><a href="#cb10-235" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 6</span></span>
-<span id="cb10-236"><a href="#cb10-236" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-237"><a href="#cb10-237" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="st">"V_conflict_events_all__ucdp"</span> <span class="sc">%in%</span> <span class="fu">names</span>(panel)) {</span>
-<span id="cb10-238"><a href="#cb10-238" aria-hidden="true" tabindex="-1"></a>  key_years <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2005</span>, <span class="dv">2010</span>, <span class="dv">2015</span>, <span class="dv">2020</span>, <span class="dv">2024</span>)</span>
-<span id="cb10-239"><a href="#cb10-239" aria-hidden="true" tabindex="-1"></a>  key_var <span class="ot">&lt;-</span> <span class="st">"V_conflict_events_all__ucdp"</span></span>
-<span id="cb10-240"><a href="#cb10-240" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-241"><a href="#cb10-241" aria-hidden="true" tabindex="-1"></a>  year_data <span class="ot">&lt;-</span> panel <span class="sc">|&gt;</span></span>
-<span id="cb10-242"><a href="#cb10-242" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(year <span class="sc">%in%</span> key_years) <span class="sc">|&gt;</span></span>
-<span id="cb10-243"><a href="#cb10-243" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(dane_code, year, <span class="at">value =</span> <span class="fu">all_of</span>(key_var))</span>
-<span id="cb10-244"><a href="#cb10-244" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-245"><a href="#cb10-245" aria-hidden="true" tabindex="-1"></a>  map_data <span class="ot">&lt;-</span> pdet_munis <span class="sc">|&gt;</span></span>
-<span id="cb10-246"><a href="#cb10-246" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(year_data, <span class="at">by =</span> <span class="st">"dane_code"</span>)</span>
-<span id="cb10-247"><a href="#cb10-247" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-248"><a href="#cb10-248" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(map_data) <span class="sc">+</span></span>
-<span id="cb10-249"><a href="#cb10-249" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> value), <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">size =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
-<span id="cb10-250"><a href="#cb10-250" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"inferno"</span>, <span class="at">na.value =</span> <span class="st">"#d9d9d9"</span>,</span>
-<span id="cb10-251"><a href="#cb10-251" aria-hidden="true" tabindex="-1"></a>                          <span class="at">name =</span> <span class="fu">gsub</span>(<span class="st">"__.*"</span>, <span class="st">""</span>, <span class="fu">gsub</span>(<span class="st">"^V_"</span>, <span class="st">""</span>, key_var))) <span class="sc">+</span></span>
-<span id="cb10-252"><a href="#cb10-252" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>year, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb10-253"><a href="#cb10-253" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb10-254"><a href="#cb10-254" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
-<span id="cb10-255"><a href="#cb10-255" aria-hidden="true" tabindex="-1"></a>      <span class="at">axis.text =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb10-256"><a href="#cb10-256" aria-hidden="true" tabindex="-1"></a>      <span class="at">axis.ticks =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb10-257"><a href="#cb10-257" aria-hidden="true" tabindex="-1"></a>      <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb10-258"><a href="#cb10-258" aria-hidden="true" tabindex="-1"></a>      <span class="at">legend.position =</span> <span class="st">"bottom"</span></span>
-<span id="cb10-259"><a href="#cb10-259" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
-<span id="cb10-260"><a href="#cb10-260" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"UCDP Conflict Events:"</span>, <span class="fu">paste</span>(key_years, <span class="at">collapse =</span> <span class="st">", "</span>)))</span>
-<span id="cb10-261"><a href="#cb10-261" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-262"><a href="#cb10-262" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-263"><a href="#cb10-263" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-264"><a href="#cb10-264" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb10-265"><a href="#cb10-265" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-266"><a href="#cb10-266" aria-hidden="true" tabindex="-1"></a>---</span>
-<span id="cb10-267"><a href="#cb10-267" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-268"><a href="#cb10-268" aria-hidden="true" tabindex="-1"></a><span class="fu">## Spatial Autocorrelation: Justice &amp; Dispute Variables {.tabset}</span></span>
-<span id="cb10-269"><a href="#cb10-269" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-270"><a href="#cb10-270" aria-hidden="true" tabindex="-1"></a>Global Moran's I and LISA cluster maps for all **J_** (Justice &amp; Dispute Resolution) variables. These diagnostics assess whether dispute resolution capacity clusters spatially --- a prerequisite for constructing a latent dispute resolution variable.</span>
-<span id="cb10-271"><a href="#cb10-271" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-272"><a href="#cb10-272" aria-hidden="true" tabindex="-1"></a>::: {.panel-tabset}</span>
-<span id="cb10-273"><a href="#cb10-273" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-274"><a href="#cb10-274" aria-hidden="true" tabindex="-1"></a><span class="fu">### Global Moran's I</span></span>
-<span id="cb10-275"><a href="#cb10-275" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-276"><a href="#cb10-276" aria-hidden="true" tabindex="-1"></a><span class="in">```{r moran-global}</span></span>
-<span id="cb10-277"><a href="#cb10-277" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb10-278"><a href="#cb10-278" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-279"><a href="#cb10-279" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Build spatial weights (Queen contiguity on PDET polygons)</span></span>
-<span id="cb10-280"><a href="#cb10-280" aria-hidden="true" tabindex="-1"></a>  pdet_sp <span class="ot">&lt;-</span> sf<span class="sc">::</span><span class="fu">as_Spatial</span>(pdet_munis)</span>
-<span id="cb10-281"><a href="#cb10-281" aria-hidden="true" tabindex="-1"></a>  nb <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">poly2nb</span>(pdet_sp, <span class="at">queen =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-282"><a href="#cb10-282" aria-hidden="true" tabindex="-1"></a>  lw <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">nb2listw</span>(nb, <span class="at">style =</span> <span class="st">"W"</span>, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-283"><a href="#cb10-283" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-284"><a href="#cb10-284" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get J_ variables + key V_ and P_ variables for comparison</span></span>
-<span id="cb10-285"><a href="#cb10-285" aria-hidden="true" tabindex="-1"></a>  dispute_vars <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"^J_"</span>, <span class="fu">names</span>(panel), <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-286"><a href="#cb10-286" aria-hidden="true" tabindex="-1"></a>  comparison_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb10-287"><a href="#cb10-287" aria-hidden="true" tabindex="-1"></a>    <span class="st">"V_selective_killing_cases__cnmh"</span>,</span>
-<span id="cb10-288"><a href="#cb10-288" aria-hidden="true" tabindex="-1"></a>    <span class="st">"V_conflict_events_all__ucdp"</span>,</span>
-<span id="cb10-289"><a href="#cb10-289" aria-hidden="true" tabindex="-1"></a>    <span class="st">"V_homicides_mean__jep"</span>,</span>
-<span id="cb10-290"><a href="#cb10-290" aria-hidden="true" tabindex="-1"></a>    <span class="st">"P_impl_mean_all_pilars__art"</span>,</span>
-<span id="cb10-291"><a href="#cb10-291" aria-hidden="true" tabindex="-1"></a>    <span class="st">"P_aid_usd__apc"</span>,</span>
-<span id="cb10-292"><a href="#cb10-292" aria-hidden="true" tabindex="-1"></a>    <span class="st">"S_nbi__dnp"</span></span>
-<span id="cb10-293"><a href="#cb10-293" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb10-294"><a href="#cb10-294" aria-hidden="true" tabindex="-1"></a>  test_vars <span class="ot">&lt;-</span> <span class="fu">intersect</span>(<span class="fu">c</span>(dispute_vars, comparison_vars), <span class="fu">names</span>(panel))</span>
-<span id="cb10-295"><a href="#cb10-295" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-296"><a href="#cb10-296" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Cross-section: aggregate across all years (mean per municipality)</span></span>
-<span id="cb10-297"><a href="#cb10-297" aria-hidden="true" tabindex="-1"></a>  cross_mean <span class="ot">&lt;-</span> panel <span class="sc">|&gt;</span></span>
-<span id="cb10-298"><a href="#cb10-298" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_by</span>(dane_code) <span class="sc">|&gt;</span></span>
-<span id="cb10-299"><a href="#cb10-299" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">summarise</span>(dplyr<span class="sc">::</span><span class="fu">across</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(test_vars),</span>
-<span id="cb10-300"><a href="#cb10-300" aria-hidden="true" tabindex="-1"></a>                                    <span class="sc">~</span> <span class="fu">mean</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
-<span id="cb10-301"><a href="#cb10-301" aria-hidden="true" tabindex="-1"></a>                     <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
-<span id="cb10-302"><a href="#cb10-302" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-303"><a href="#cb10-303" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Join to geometry (preserve order)</span></span>
-<span id="cb10-304"><a href="#cb10-304" aria-hidden="true" tabindex="-1"></a>  geo_cross <span class="ot">&lt;-</span> pdet_munis <span class="sc">|&gt;</span></span>
-<span id="cb10-305"><a href="#cb10-305" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(cross_mean, <span class="at">by =</span> <span class="st">"dane_code"</span>)</span>
-<span id="cb10-306"><a href="#cb10-306" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-307"><a href="#cb10-307" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Compute Moran's I for each variable</span></span>
-<span id="cb10-308"><a href="#cb10-308" aria-hidden="true" tabindex="-1"></a>  moran_results <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(test_vars, <span class="cf">function</span>(v) {</span>
-<span id="cb10-309"><a href="#cb10-309" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> geo_cross[[v]]</span>
-<span id="cb10-310"><a href="#cb10-310" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)) <span class="sc">&lt;</span> <span class="dv">30</span>) {</span>
-<span id="cb10-311"><a href="#cb10-311" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(tibble<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">variable =</span> v, <span class="at">morans_I =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb10-312"><a href="#cb10-312" aria-hidden="true" tabindex="-1"></a>                            <span class="at">p_value =</span> <span class="cn">NA_real_</span>, <span class="at">z_score =</span> <span class="cn">NA_real_</span>))</span>
-<span id="cb10-313"><a href="#cb10-313" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb10-314"><a href="#cb10-314" aria-hidden="true" tabindex="-1"></a>    x[<span class="fu">is.na</span>(x)] <span class="ot">&lt;-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-315"><a href="#cb10-315" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">==</span> <span class="dv">0</span> <span class="sc">||</span> <span class="fu">is.na</span>(<span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))) {</span>
-<span id="cb10-316"><a href="#cb10-316" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(tibble<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">variable =</span> v, <span class="at">morans_I =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb10-317"><a href="#cb10-317" aria-hidden="true" tabindex="-1"></a>                            <span class="at">p_value =</span> <span class="cn">NA_real_</span>, <span class="at">z_score =</span> <span class="cn">NA_real_</span>))</span>
-<span id="cb10-318"><a href="#cb10-318" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb10-319"><a href="#cb10-319" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-320"><a href="#cb10-320" aria-hidden="true" tabindex="-1"></a>    mt <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(</span>
-<span id="cb10-321"><a href="#cb10-321" aria-hidden="true" tabindex="-1"></a>      spdep<span class="sc">::</span><span class="fu">moran.test</span>(x, lw, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb10-322"><a href="#cb10-322" aria-hidden="true" tabindex="-1"></a>      <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NULL</span></span>
-<span id="cb10-323"><a href="#cb10-323" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb10-324"><a href="#cb10-324" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(mt)) {</span>
-<span id="cb10-325"><a href="#cb10-325" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(tibble<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">variable =</span> v, <span class="at">morans_I =</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb10-326"><a href="#cb10-326" aria-hidden="true" tabindex="-1"></a>                            <span class="at">p_value =</span> <span class="cn">NA_real_</span>, <span class="at">z_score =</span> <span class="cn">NA_real_</span>))</span>
-<span id="cb10-327"><a href="#cb10-327" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb10-328"><a href="#cb10-328" aria-hidden="true" tabindex="-1"></a>    tibble<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb10-329"><a href="#cb10-329" aria-hidden="true" tabindex="-1"></a>      <span class="at">variable =</span> v,</span>
-<span id="cb10-330"><a href="#cb10-330" aria-hidden="true" tabindex="-1"></a>      <span class="at">morans_I =</span> <span class="fu">round</span>(mt<span class="sc">$</span>estimate[<span class="st">"Moran I statistic"</span>], <span class="dv">4</span>),</span>
-<span id="cb10-331"><a href="#cb10-331" aria-hidden="true" tabindex="-1"></a>      <span class="at">p_value  =</span> <span class="fu">round</span>(mt<span class="sc">$</span>p.value, <span class="dv">6</span>),</span>
-<span id="cb10-332"><a href="#cb10-332" aria-hidden="true" tabindex="-1"></a>      <span class="at">z_score  =</span> <span class="fu">round</span>(mt<span class="sc">$</span>statistic, <span class="dv">2</span>)</span>
-<span id="cb10-333"><a href="#cb10-333" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb10-334"><a href="#cb10-334" aria-hidden="true" tabindex="-1"></a>  }) <span class="sc">|&gt;</span></span>
-<span id="cb10-335"><a href="#cb10-335" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb10-336"><a href="#cb10-336" aria-hidden="true" tabindex="-1"></a>      <span class="at">category =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
-<span id="cb10-337"><a href="#cb10-337" aria-hidden="true" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_starts</span>(variable, <span class="st">"J_"</span>) <span class="sc">~</span> <span class="st">"Justice &amp; Dispute"</span>,</span>
-<span id="cb10-338"><a href="#cb10-338" aria-hidden="true" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_starts</span>(variable, <span class="st">"V_"</span>) <span class="sc">~</span> <span class="st">"Violence (comparison)"</span>,</span>
-<span id="cb10-339"><a href="#cb10-339" aria-hidden="true" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_starts</span>(variable, <span class="st">"P_"</span>) <span class="sc">~</span> <span class="st">"Peace (comparison)"</span>,</span>
-<span id="cb10-340"><a href="#cb10-340" aria-hidden="true" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_starts</span>(variable, <span class="st">"S_"</span>) <span class="sc">~</span> <span class="st">"Socioeconomic (comparison)"</span>,</span>
-<span id="cb10-341"><a href="#cb10-341" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"Other"</span></span>
-<span id="cb10-342"><a href="#cb10-342" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb10-343"><a href="#cb10-343" aria-hidden="true" tabindex="-1"></a>      <span class="at">significant =</span> <span class="fu">ifelse</span>(p_value <span class="sc">&lt;</span> <span class="fl">0.05</span>, <span class="st">"***"</span>, <span class="st">""</span>)</span>
-<span id="cb10-344"><a href="#cb10-344" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb10-345"><a href="#cb10-345" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">arrange</span>(dplyr<span class="sc">::</span><span class="fu">desc</span>(morans_I))</span>
+<span id="cb10-234"><a href="#cb10-234" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Build spatial weights (Queen contiguity on PDET polygons)</span></span>
+<span id="cb10-235"><a href="#cb10-235" aria-hidden="true" tabindex="-1"></a>  pdet_sp <span class="ot">&lt;-</span> sf<span class="sc">::</span><span class="fu">as_Spatial</span>(pdet_munis)</span>
+<span id="cb10-236"><a href="#cb10-236" aria-hidden="true" tabindex="-1"></a>  nb <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">poly2nb</span>(pdet_sp, <span class="at">queen =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-237"><a href="#cb10-237" aria-hidden="true" tabindex="-1"></a>  lw <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">nb2listw</span>(nb, <span class="at">style =</span> <span class="st">"W"</span>, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-238"><a href="#cb10-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-239"><a href="#cb10-239" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get J_ variables + key V_ and P_ variables for comparison</span></span>
+<span id="cb10-240"><a href="#cb10-240" aria-hidden="true" tabindex="-1"></a>  dispute_vars <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"^J_"</span>, <span class="fu">names</span>(panel), <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-241"><a href="#cb10-241" aria-hidden="true" tabindex="-1"></a>  comparison_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb10-242"><a href="#cb10-242" aria-hidden="true" tabindex="-1"></a>    <span class="st">"V_selective_killing_cases__cnmh"</span>,</span>
+<span id="cb10-243"><a href="#cb10-243" aria-hidden="true" tabindex="-1"></a>    <span class="st">"V_conflict_events_all__ucdp"</span>,</span>
+<span id="cb10-244"><a href="#cb10-244" aria-hidden="true" tabindex="-1"></a>    <span class="st">"V_homicides_mean__jep"</span>,</span>
+<span id="cb10-245"><a href="#cb10-245" aria-hidden="true" tabindex="-1"></a>    <span class="st">"P_impl_mean_all_pilars__art"</span>,</span>
+<span id="cb10-246"><a href="#cb10-246" aria-hidden="true" tabindex="-1"></a>    <span class="st">"P_aid_usd__apc"</span>,</span>
+<span id="cb10-247"><a href="#cb10-247" aria-hidden="true" tabindex="-1"></a>    <span class="st">"S_nbi__dnp"</span></span>
+<span id="cb10-248"><a href="#cb10-248" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-249"><a href="#cb10-249" aria-hidden="true" tabindex="-1"></a>  test_vars <span class="ot">&lt;-</span> <span class="fu">intersect</span>(<span class="fu">c</span>(dispute_vars, comparison_vars), <span class="fu">names</span>(panel))</span>
+<span id="cb10-250"><a href="#cb10-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-251"><a href="#cb10-251" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Cross-section: aggregate across all years (mean per municipality)</span></span>
+<span id="cb10-252"><a href="#cb10-252" aria-hidden="true" tabindex="-1"></a>  cross_mean <span class="ot">&lt;-</span> panel <span class="sc">|&gt;</span></span>
+<span id="cb10-253"><a href="#cb10-253" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_by</span>(dane_code) <span class="sc">|&gt;</span></span>
+<span id="cb10-254"><a href="#cb10-254" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">summarise</span>(dplyr<span class="sc">::</span><span class="fu">across</span>(dplyr<span class="sc">::</span><span class="fu">all_of</span>(test_vars),</span>
+<span id="cb10-255"><a href="#cb10-255" aria-hidden="true" tabindex="-1"></a>                                    <span class="sc">~</span> <span class="fu">mean</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb10-256"><a href="#cb10-256" aria-hidden="true" tabindex="-1"></a>                     <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb10-257"><a href="#cb10-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-258"><a href="#cb10-258" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Join to geometry (preserve order)</span></span>
+<span id="cb10-259"><a href="#cb10-259" aria-hidden="true" tabindex="-1"></a>  geo_cross <span class="ot">&lt;-</span> pdet_munis <span class="sc">|&gt;</span></span>
+<span id="cb10-260"><a href="#cb10-260" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(cross_mean, <span class="at">by =</span> <span class="st">"dane_code"</span>)</span>
+<span id="cb10-261"><a href="#cb10-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-262"><a href="#cb10-262" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Compute Moran's I for each variable</span></span>
+<span id="cb10-263"><a href="#cb10-263" aria-hidden="true" tabindex="-1"></a>  moran_results <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(test_vars, <span class="cf">function</span>(v) {</span>
+<span id="cb10-264"><a href="#cb10-264" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> geo_cross[[v]]</span>
+<span id="cb10-265"><a href="#cb10-265" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)) <span class="sc">&lt;</span> <span class="dv">30</span>) {</span>
+<span id="cb10-266"><a href="#cb10-266" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(tibble<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">variable =</span> v, <span class="at">morans_I =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb10-267"><a href="#cb10-267" aria-hidden="true" tabindex="-1"></a>                            <span class="at">p_value =</span> <span class="cn">NA_real_</span>, <span class="at">z_score =</span> <span class="cn">NA_real_</span>))</span>
+<span id="cb10-268"><a href="#cb10-268" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb10-269"><a href="#cb10-269" aria-hidden="true" tabindex="-1"></a>    x[<span class="fu">is.na</span>(x)] <span class="ot">&lt;-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-270"><a href="#cb10-270" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">==</span> <span class="dv">0</span> <span class="sc">||</span> <span class="fu">is.na</span>(<span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))) {</span>
+<span id="cb10-271"><a href="#cb10-271" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(tibble<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">variable =</span> v, <span class="at">morans_I =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb10-272"><a href="#cb10-272" aria-hidden="true" tabindex="-1"></a>                            <span class="at">p_value =</span> <span class="cn">NA_real_</span>, <span class="at">z_score =</span> <span class="cn">NA_real_</span>))</span>
+<span id="cb10-273"><a href="#cb10-273" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb10-274"><a href="#cb10-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-275"><a href="#cb10-275" aria-hidden="true" tabindex="-1"></a>    mt <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(</span>
+<span id="cb10-276"><a href="#cb10-276" aria-hidden="true" tabindex="-1"></a>      spdep<span class="sc">::</span><span class="fu">moran.test</span>(x, lw, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-277"><a href="#cb10-277" aria-hidden="true" tabindex="-1"></a>      <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NULL</span></span>
+<span id="cb10-278"><a href="#cb10-278" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-279"><a href="#cb10-279" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(mt)) {</span>
+<span id="cb10-280"><a href="#cb10-280" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(tibble<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">variable =</span> v, <span class="at">morans_I =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb10-281"><a href="#cb10-281" aria-hidden="true" tabindex="-1"></a>                            <span class="at">p_value =</span> <span class="cn">NA_real_</span>, <span class="at">z_score =</span> <span class="cn">NA_real_</span>))</span>
+<span id="cb10-282"><a href="#cb10-282" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb10-283"><a href="#cb10-283" aria-hidden="true" tabindex="-1"></a>    tibble<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb10-284"><a href="#cb10-284" aria-hidden="true" tabindex="-1"></a>      <span class="at">variable =</span> v,</span>
+<span id="cb10-285"><a href="#cb10-285" aria-hidden="true" tabindex="-1"></a>      <span class="at">morans_I =</span> <span class="fu">round</span>(mt<span class="sc">$</span>estimate[<span class="st">"Moran I statistic"</span>], <span class="dv">4</span>),</span>
+<span id="cb10-286"><a href="#cb10-286" aria-hidden="true" tabindex="-1"></a>      <span class="at">p_value  =</span> <span class="fu">round</span>(mt<span class="sc">$</span>p.value, <span class="dv">6</span>),</span>
+<span id="cb10-287"><a href="#cb10-287" aria-hidden="true" tabindex="-1"></a>      <span class="at">z_score  =</span> <span class="fu">round</span>(mt<span class="sc">$</span>statistic, <span class="dv">2</span>)</span>
+<span id="cb10-288"><a href="#cb10-288" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-289"><a href="#cb10-289" aria-hidden="true" tabindex="-1"></a>  }) <span class="sc">|&gt;</span></span>
+<span id="cb10-290"><a href="#cb10-290" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb10-291"><a href="#cb10-291" aria-hidden="true" tabindex="-1"></a>      <span class="at">category =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
+<span id="cb10-292"><a href="#cb10-292" aria-hidden="true" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_starts</span>(variable, <span class="st">"J_"</span>) <span class="sc">~</span> <span class="st">"Justice &amp; Dispute"</span>,</span>
+<span id="cb10-293"><a href="#cb10-293" aria-hidden="true" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_starts</span>(variable, <span class="st">"V_"</span>) <span class="sc">~</span> <span class="st">"Violence (comparison)"</span>,</span>
+<span id="cb10-294"><a href="#cb10-294" aria-hidden="true" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_starts</span>(variable, <span class="st">"P_"</span>) <span class="sc">~</span> <span class="st">"Peace (comparison)"</span>,</span>
+<span id="cb10-295"><a href="#cb10-295" aria-hidden="true" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_starts</span>(variable, <span class="st">"S_"</span>) <span class="sc">~</span> <span class="st">"Socioeconomic (comparison)"</span>,</span>
+<span id="cb10-296"><a href="#cb10-296" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"Other"</span></span>
+<span id="cb10-297"><a href="#cb10-297" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb10-298"><a href="#cb10-298" aria-hidden="true" tabindex="-1"></a>      <span class="at">significant =</span> <span class="fu">ifelse</span>(p_value <span class="sc">&lt;</span> <span class="fl">0.05</span>, <span class="st">"***"</span>, <span class="st">""</span>)</span>
+<span id="cb10-299"><a href="#cb10-299" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb10-300"><a href="#cb10-300" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">arrange</span>(dplyr<span class="sc">::</span><span class="fu">desc</span>(morans_I))</span>
+<span id="cb10-301"><a href="#cb10-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-302"><a href="#cb10-302" aria-hidden="true" tabindex="-1"></a>  DT<span class="sc">::</span><span class="fu">datatable</span>(</span>
+<span id="cb10-303"><a href="#cb10-303" aria-hidden="true" tabindex="-1"></a>    moran_results,</span>
+<span id="cb10-304"><a href="#cb10-304" aria-hidden="true" tabindex="-1"></a>    <span class="at">rownames =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb10-305"><a href="#cb10-305" aria-hidden="true" tabindex="-1"></a>    <span class="at">options  =</span> <span class="fu">list</span>(<span class="at">pageLength =</span> <span class="dv">20</span>, <span class="at">dom =</span> <span class="st">"ft"</span>),</span>
+<span id="cb10-306"><a href="#cb10-306" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption  =</span> <span class="st">"Global Moran's I — Queen contiguity, W-standardized. Mean across all years."</span></span>
+<span id="cb10-307"><a href="#cb10-307" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb10-308"><a href="#cb10-308" aria-hidden="true" tabindex="-1"></a>    DT<span class="sc">::</span><span class="fu">formatStyle</span>(</span>
+<span id="cb10-309"><a href="#cb10-309" aria-hidden="true" tabindex="-1"></a>      <span class="st">"category"</span>,</span>
+<span id="cb10-310"><a href="#cb10-310" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> DT<span class="sc">::</span><span class="fu">styleEqual</span>(</span>
+<span id="cb10-311"><a href="#cb10-311" aria-hidden="true" tabindex="-1"></a>        <span class="fu">c</span>(<span class="st">"Justice &amp; Dispute"</span>, <span class="st">"Violence (comparison)"</span>, <span class="st">"Peace (comparison)"</span>, <span class="st">"Socioeconomic (comparison)"</span>),</span>
+<span id="cb10-312"><a href="#cb10-312" aria-hidden="true" tabindex="-1"></a>        <span class="fu">c</span>(<span class="st">"#2166ac"</span>, <span class="st">"#b2182b"</span>, <span class="st">"#1b7837"</span>, <span class="st">"#8c510a"</span>)</span>
+<span id="cb10-313"><a href="#cb10-313" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb10-314"><a href="#cb10-314" aria-hidden="true" tabindex="-1"></a>      <span class="at">fontWeight =</span> <span class="st">"bold"</span></span>
+<span id="cb10-315"><a href="#cb10-315" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb10-316"><a href="#cb10-316" aria-hidden="true" tabindex="-1"></a>    DT<span class="sc">::</span><span class="fu">formatStyle</span>(</span>
+<span id="cb10-317"><a href="#cb10-317" aria-hidden="true" tabindex="-1"></a>      <span class="st">"significant"</span>,</span>
+<span id="cb10-318"><a href="#cb10-318" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> <span class="st">"red"</span>,</span>
+<span id="cb10-319"><a href="#cb10-319" aria-hidden="true" tabindex="-1"></a>      <span class="at">fontWeight =</span> <span class="st">"bold"</span></span>
+<span id="cb10-320"><a href="#cb10-320" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-321"><a href="#cb10-321" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-322"><a href="#cb10-322" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-323"><a href="#cb10-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-324"><a href="#cb10-324" aria-hidden="true" tabindex="-1"></a><span class="fu">### LISA Cluster Maps</span></span>
+<span id="cb10-325"><a href="#cb10-325" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-326"><a href="#cb10-326" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lisa-maps}</span></span>
+<span id="cb10-327"><a href="#cb10-327" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 10</span></span>
+<span id="cb10-328"><a href="#cb10-328" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb10-329"><a href="#cb10-329" aria-hidden="true" tabindex="-1"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb10-330"><a href="#cb10-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-331"><a href="#cb10-331" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb10-332"><a href="#cb10-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-333"><a href="#cb10-333" aria-hidden="true" tabindex="-1"></a>  <span class="co"># LISA for each J_ variable — build a single long-format sf and facet_wrap</span></span>
+<span id="cb10-334"><a href="#cb10-334" aria-hidden="true" tabindex="-1"></a>  <span class="co"># (avoids patchwork-over-many-ggplots and keeps HTML small).</span></span>
+<span id="cb10-335"><a href="#cb10-335" aria-hidden="true" tabindex="-1"></a>  lisa_vars <span class="ot">&lt;-</span> <span class="fu">intersect</span>(dispute_vars, <span class="fu">names</span>(geo_cross))</span>
+<span id="cb10-336"><a href="#cb10-336" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-337"><a href="#cb10-337" aria-hidden="true" tabindex="-1"></a>  cluster_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"High-High"</span>, <span class="st">"Low-Low"</span>, <span class="st">"High-Low"</span>,</span>
+<span id="cb10-338"><a href="#cb10-338" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"Low-High"</span>, <span class="st">"Not significant"</span>)</span>
+<span id="cb10-339"><a href="#cb10-339" aria-hidden="true" tabindex="-1"></a>  cluster_colors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb10-340"><a href="#cb10-340" aria-hidden="true" tabindex="-1"></a>    <span class="st">"High-High"</span>       <span class="ot">=</span> <span class="st">"#d7191c"</span>,</span>
+<span id="cb10-341"><a href="#cb10-341" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Low-Low"</span>         <span class="ot">=</span> <span class="st">"#2c7bb6"</span>,</span>
+<span id="cb10-342"><a href="#cb10-342" aria-hidden="true" tabindex="-1"></a>    <span class="st">"High-Low"</span>        <span class="ot">=</span> <span class="st">"#fdae61"</span>,</span>
+<span id="cb10-343"><a href="#cb10-343" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Low-High"</span>        <span class="ot">=</span> <span class="st">"#abd9e9"</span>,</span>
+<span id="cb10-344"><a href="#cb10-344" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Not significant"</span> <span class="ot">=</span> <span class="st">"#e0e0e0"</span></span>
+<span id="cb10-345"><a href="#cb10-345" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb10-346"><a href="#cb10-346" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-347"><a href="#cb10-347" aria-hidden="true" tabindex="-1"></a>  DT<span class="sc">::</span><span class="fu">datatable</span>(</span>
-<span id="cb10-348"><a href="#cb10-348" aria-hidden="true" tabindex="-1"></a>    moran_results,</span>
-<span id="cb10-349"><a href="#cb10-349" aria-hidden="true" tabindex="-1"></a>    <span class="at">rownames =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb10-350"><a href="#cb10-350" aria-hidden="true" tabindex="-1"></a>    <span class="at">options  =</span> <span class="fu">list</span>(<span class="at">pageLength =</span> <span class="dv">20</span>, <span class="at">dom =</span> <span class="st">"ft"</span>),</span>
-<span id="cb10-351"><a href="#cb10-351" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption  =</span> <span class="st">"Global Moran's I — Queen contiguity, W-standardized. Mean across all years."</span></span>
-<span id="cb10-352"><a href="#cb10-352" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb10-353"><a href="#cb10-353" aria-hidden="true" tabindex="-1"></a>    DT<span class="sc">::</span><span class="fu">formatStyle</span>(</span>
-<span id="cb10-354"><a href="#cb10-354" aria-hidden="true" tabindex="-1"></a>      <span class="st">"category"</span>,</span>
-<span id="cb10-355"><a href="#cb10-355" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> DT<span class="sc">::</span><span class="fu">styleEqual</span>(</span>
-<span id="cb10-356"><a href="#cb10-356" aria-hidden="true" tabindex="-1"></a>        <span class="fu">c</span>(<span class="st">"Justice &amp; Dispute"</span>, <span class="st">"Violence (comparison)"</span>, <span class="st">"Peace (comparison)"</span>, <span class="st">"Socioeconomic (comparison)"</span>),</span>
-<span id="cb10-357"><a href="#cb10-357" aria-hidden="true" tabindex="-1"></a>        <span class="fu">c</span>(<span class="st">"#2166ac"</span>, <span class="st">"#b2182b"</span>, <span class="st">"#1b7837"</span>, <span class="st">"#8c510a"</span>)</span>
-<span id="cb10-358"><a href="#cb10-358" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb10-359"><a href="#cb10-359" aria-hidden="true" tabindex="-1"></a>      <span class="at">fontWeight =</span> <span class="st">"bold"</span></span>
-<span id="cb10-360"><a href="#cb10-360" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb10-361"><a href="#cb10-361" aria-hidden="true" tabindex="-1"></a>    DT<span class="sc">::</span><span class="fu">formatStyle</span>(</span>
-<span id="cb10-362"><a href="#cb10-362" aria-hidden="true" tabindex="-1"></a>      <span class="st">"significant"</span>,</span>
-<span id="cb10-363"><a href="#cb10-363" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> <span class="st">"red"</span>,</span>
-<span id="cb10-364"><a href="#cb10-364" aria-hidden="true" tabindex="-1"></a>      <span class="at">fontWeight =</span> <span class="st">"bold"</span></span>
-<span id="cb10-365"><a href="#cb10-365" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb10-366"><a href="#cb10-366" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-367"><a href="#cb10-367" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-368"><a href="#cb10-368" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-369"><a href="#cb10-369" aria-hidden="true" tabindex="-1"></a><span class="fu">### LISA Cluster Maps</span></span>
-<span id="cb10-370"><a href="#cb10-370" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-371"><a href="#cb10-371" aria-hidden="true" tabindex="-1"></a><span class="in">```{r lisa-maps}</span></span>
-<span id="cb10-372"><a href="#cb10-372" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 10</span></span>
-<span id="cb10-373"><a href="#cb10-373" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
-<span id="cb10-374"><a href="#cb10-374" aria-hidden="true" tabindex="-1"></a><span class="co">#| out-width: "100%"</span></span>
-<span id="cb10-375"><a href="#cb10-375" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-376"><a href="#cb10-376" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb10-377"><a href="#cb10-377" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-378"><a href="#cb10-378" aria-hidden="true" tabindex="-1"></a>  <span class="co"># LISA for each J_ variable — build a single long-format sf and facet_wrap</span></span>
-<span id="cb10-379"><a href="#cb10-379" aria-hidden="true" tabindex="-1"></a>  <span class="co"># (avoids patchwork-over-many-ggplots and keeps HTML small).</span></span>
-<span id="cb10-380"><a href="#cb10-380" aria-hidden="true" tabindex="-1"></a>  lisa_vars <span class="ot">&lt;-</span> <span class="fu">intersect</span>(dispute_vars, <span class="fu">names</span>(geo_cross))</span>
-<span id="cb10-381"><a href="#cb10-381" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-382"><a href="#cb10-382" aria-hidden="true" tabindex="-1"></a>  cluster_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"High-High"</span>, <span class="st">"Low-Low"</span>, <span class="st">"High-Low"</span>,</span>
-<span id="cb10-383"><a href="#cb10-383" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"Low-High"</span>, <span class="st">"Not significant"</span>)</span>
-<span id="cb10-384"><a href="#cb10-384" aria-hidden="true" tabindex="-1"></a>  cluster_colors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb10-385"><a href="#cb10-385" aria-hidden="true" tabindex="-1"></a>    <span class="st">"High-High"</span>       <span class="ot">=</span> <span class="st">"#d7191c"</span>,</span>
-<span id="cb10-386"><a href="#cb10-386" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Low-Low"</span>         <span class="ot">=</span> <span class="st">"#2c7bb6"</span>,</span>
-<span id="cb10-387"><a href="#cb10-387" aria-hidden="true" tabindex="-1"></a>    <span class="st">"High-Low"</span>        <span class="ot">=</span> <span class="st">"#fdae61"</span>,</span>
-<span id="cb10-388"><a href="#cb10-388" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Low-High"</span>        <span class="ot">=</span> <span class="st">"#abd9e9"</span>,</span>
-<span id="cb10-389"><a href="#cb10-389" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Not significant"</span> <span class="ot">=</span> <span class="st">"#e0e0e0"</span></span>
-<span id="cb10-390"><a href="#cb10-390" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb10-391"><a href="#cb10-391" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-392"><a href="#cb10-392" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(lisa_vars) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb10-393"><a href="#cb10-393" aria-hidden="true" tabindex="-1"></a>    panels <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(lisa_vars, <span class="cf">function</span>(v) {</span>
-<span id="cb10-394"><a href="#cb10-394" aria-hidden="true" tabindex="-1"></a>      x <span class="ot">&lt;-</span> geo_cross[[v]]</span>
-<span id="cb10-395"><a href="#cb10-395" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)) <span class="sc">&lt;</span> <span class="dv">20</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb10-396"><a href="#cb10-396" aria-hidden="true" tabindex="-1"></a>      x[<span class="fu">is.na</span>(x)] <span class="ot">&lt;-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-397"><a href="#cb10-397" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">==</span> <span class="dv">0</span> <span class="sc">||</span> <span class="fu">is.na</span>(<span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb10-398"><a href="#cb10-398" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-399"><a href="#cb10-399" aria-hidden="true" tabindex="-1"></a>      lm <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(</span>
-<span id="cb10-400"><a href="#cb10-400" aria-hidden="true" tabindex="-1"></a>        spdep<span class="sc">::</span><span class="fu">localmoran</span>(x, lw, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb10-401"><a href="#cb10-401" aria-hidden="true" tabindex="-1"></a>        <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NULL</span></span>
-<span id="cb10-402"><a href="#cb10-402" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb10-403"><a href="#cb10-403" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">is.null</span>(lm)) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb10-404"><a href="#cb10-404" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-405"><a href="#cb10-405" aria-hidden="true" tabindex="-1"></a>      xz <span class="ot">&lt;-</span> <span class="fu">scale</span>(x)[, <span class="dv">1</span>]</span>
-<span id="cb10-406"><a href="#cb10-406" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">any</span>(<span class="sc">!</span><span class="fu">is.finite</span>(xz))) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb10-407"><a href="#cb10-407" aria-hidden="true" tabindex="-1"></a>      lag_xz <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">lag.listw</span>(lw, xz, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-408"><a href="#cb10-408" aria-hidden="true" tabindex="-1"></a>      p_local <span class="ot">&lt;-</span> lm[, <span class="st">"Pr(z != E(Ii))"</span>]</span>
-<span id="cb10-409"><a href="#cb10-409" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-410"><a href="#cb10-410" aria-hidden="true" tabindex="-1"></a>      clean_name <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"^J_"</span>, <span class="st">""</span>, <span class="fu">gsub</span>(<span class="st">"__.*"</span>, <span class="st">""</span>, v))</span>
-<span id="cb10-411"><a href="#cb10-411" aria-hidden="true" tabindex="-1"></a>      mi_val <span class="ot">&lt;-</span> moran_results<span class="sc">$</span>morans_I[moran_results<span class="sc">$</span>variable <span class="sc">==</span> v]</span>
-<span id="cb10-412"><a href="#cb10-412" aria-hidden="true" tabindex="-1"></a>      panel_label <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"%s (I=%.3f)"</span>, clean_name,</span>
-<span id="cb10-413"><a href="#cb10-413" aria-hidden="true" tabindex="-1"></a>                             <span class="cf">if</span> (<span class="fu">length</span>(mi_val)) mi_val <span class="cf">else</span> <span class="cn">NA_real_</span>)</span>
-<span id="cb10-414"><a href="#cb10-414" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-415"><a href="#cb10-415" aria-hidden="true" tabindex="-1"></a>      geo_cross <span class="sc">|&gt;</span></span>
-<span id="cb10-416"><a href="#cb10-416" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">transmute</span>(</span>
-<span id="cb10-417"><a href="#cb10-417" aria-hidden="true" tabindex="-1"></a>          dane_code,</span>
-<span id="cb10-418"><a href="#cb10-418" aria-hidden="true" tabindex="-1"></a>          <span class="at">var_label =</span> panel_label,</span>
-<span id="cb10-419"><a href="#cb10-419" aria-hidden="true" tabindex="-1"></a>          <span class="at">cluster   =</span> <span class="fu">factor</span>(dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
-<span id="cb10-420"><a href="#cb10-420" aria-hidden="true" tabindex="-1"></a>            p_local <span class="sc">&gt;</span> <span class="fl">0.05</span>       <span class="sc">~</span> <span class="st">"Not significant"</span>,</span>
-<span id="cb10-421"><a href="#cb10-421" aria-hidden="true" tabindex="-1"></a>            xz <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> lag_xz <span class="sc">&gt;</span> <span class="dv">0</span>  <span class="sc">~</span> <span class="st">"High-High"</span>,</span>
-<span id="cb10-422"><a href="#cb10-422" aria-hidden="true" tabindex="-1"></a>            xz <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> lag_xz <span class="sc">&lt;</span> <span class="dv">0</span>  <span class="sc">~</span> <span class="st">"Low-Low"</span>,</span>
-<span id="cb10-423"><a href="#cb10-423" aria-hidden="true" tabindex="-1"></a>            xz <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> lag_xz <span class="sc">&lt;</span> <span class="dv">0</span>  <span class="sc">~</span> <span class="st">"High-Low"</span>,</span>
-<span id="cb10-424"><a href="#cb10-424" aria-hidden="true" tabindex="-1"></a>            xz <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> lag_xz <span class="sc">&gt;</span> <span class="dv">0</span>  <span class="sc">~</span> <span class="st">"Low-High"</span>,</span>
-<span id="cb10-425"><a href="#cb10-425" aria-hidden="true" tabindex="-1"></a>            <span class="cn">TRUE</span>                  <span class="sc">~</span> <span class="st">"Not significant"</span></span>
-<span id="cb10-426"><a href="#cb10-426" aria-hidden="true" tabindex="-1"></a>          ), <span class="at">levels =</span> cluster_levels)</span>
-<span id="cb10-427"><a href="#cb10-427" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb10-428"><a href="#cb10-428" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb10-347"><a href="#cb10-347" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(lisa_vars) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb10-348"><a href="#cb10-348" aria-hidden="true" tabindex="-1"></a>    panels <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(lisa_vars, <span class="cf">function</span>(v) {</span>
+<span id="cb10-349"><a href="#cb10-349" aria-hidden="true" tabindex="-1"></a>      x <span class="ot">&lt;-</span> geo_cross[[v]]</span>
+<span id="cb10-350"><a href="#cb10-350" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)) <span class="sc">&lt;</span> <span class="dv">20</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb10-351"><a href="#cb10-351" aria-hidden="true" tabindex="-1"></a>      x[<span class="fu">is.na</span>(x)] <span class="ot">&lt;-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-352"><a href="#cb10-352" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">==</span> <span class="dv">0</span> <span class="sc">||</span> <span class="fu">is.na</span>(<span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb10-353"><a href="#cb10-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-354"><a href="#cb10-354" aria-hidden="true" tabindex="-1"></a>      lm <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(</span>
+<span id="cb10-355"><a href="#cb10-355" aria-hidden="true" tabindex="-1"></a>        spdep<span class="sc">::</span><span class="fu">localmoran</span>(x, lw, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-356"><a href="#cb10-356" aria-hidden="true" tabindex="-1"></a>        <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NULL</span></span>
+<span id="cb10-357"><a href="#cb10-357" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb10-358"><a href="#cb10-358" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">is.null</span>(lm)) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb10-359"><a href="#cb10-359" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-360"><a href="#cb10-360" aria-hidden="true" tabindex="-1"></a>      xz <span class="ot">&lt;-</span> <span class="fu">scale</span>(x)[, <span class="dv">1</span>]</span>
+<span id="cb10-361"><a href="#cb10-361" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">any</span>(<span class="sc">!</span><span class="fu">is.finite</span>(xz))) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb10-362"><a href="#cb10-362" aria-hidden="true" tabindex="-1"></a>      lag_xz <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">lag.listw</span>(lw, xz, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-363"><a href="#cb10-363" aria-hidden="true" tabindex="-1"></a>      p_local <span class="ot">&lt;-</span> lm[, <span class="st">"Pr(z != E(Ii))"</span>]</span>
+<span id="cb10-364"><a href="#cb10-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-365"><a href="#cb10-365" aria-hidden="true" tabindex="-1"></a>      clean_name <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"^J_"</span>, <span class="st">""</span>, <span class="fu">gsub</span>(<span class="st">"__.*"</span>, <span class="st">""</span>, v))</span>
+<span id="cb10-366"><a href="#cb10-366" aria-hidden="true" tabindex="-1"></a>      mi_val <span class="ot">&lt;-</span> moran_results<span class="sc">$</span>morans_I[moran_results<span class="sc">$</span>variable <span class="sc">==</span> v]</span>
+<span id="cb10-367"><a href="#cb10-367" aria-hidden="true" tabindex="-1"></a>      panel_label <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"%s (I=%.3f)"</span>, clean_name,</span>
+<span id="cb10-368"><a href="#cb10-368" aria-hidden="true" tabindex="-1"></a>                             <span class="cf">if</span> (<span class="fu">length</span>(mi_val)) mi_val <span class="cf">else</span> <span class="cn">NA_real_</span>)</span>
+<span id="cb10-369"><a href="#cb10-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-370"><a href="#cb10-370" aria-hidden="true" tabindex="-1"></a>      geo_cross <span class="sc">|&gt;</span></span>
+<span id="cb10-371"><a href="#cb10-371" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">transmute</span>(</span>
+<span id="cb10-372"><a href="#cb10-372" aria-hidden="true" tabindex="-1"></a>          dane_code,</span>
+<span id="cb10-373"><a href="#cb10-373" aria-hidden="true" tabindex="-1"></a>          <span class="at">var_label =</span> panel_label,</span>
+<span id="cb10-374"><a href="#cb10-374" aria-hidden="true" tabindex="-1"></a>          <span class="at">cluster   =</span> <span class="fu">factor</span>(dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
+<span id="cb10-375"><a href="#cb10-375" aria-hidden="true" tabindex="-1"></a>            p_local <span class="sc">&gt;</span> <span class="fl">0.05</span>       <span class="sc">~</span> <span class="st">"Not significant"</span>,</span>
+<span id="cb10-376"><a href="#cb10-376" aria-hidden="true" tabindex="-1"></a>            xz <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> lag_xz <span class="sc">&gt;</span> <span class="dv">0</span>  <span class="sc">~</span> <span class="st">"High-High"</span>,</span>
+<span id="cb10-377"><a href="#cb10-377" aria-hidden="true" tabindex="-1"></a>            xz <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> lag_xz <span class="sc">&lt;</span> <span class="dv">0</span>  <span class="sc">~</span> <span class="st">"Low-Low"</span>,</span>
+<span id="cb10-378"><a href="#cb10-378" aria-hidden="true" tabindex="-1"></a>            xz <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> lag_xz <span class="sc">&lt;</span> <span class="dv">0</span>  <span class="sc">~</span> <span class="st">"High-Low"</span>,</span>
+<span id="cb10-379"><a href="#cb10-379" aria-hidden="true" tabindex="-1"></a>            xz <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> lag_xz <span class="sc">&gt;</span> <span class="dv">0</span>  <span class="sc">~</span> <span class="st">"Low-High"</span>,</span>
+<span id="cb10-380"><a href="#cb10-380" aria-hidden="true" tabindex="-1"></a>            <span class="cn">TRUE</span>                  <span class="sc">~</span> <span class="st">"Not significant"</span></span>
+<span id="cb10-381"><a href="#cb10-381" aria-hidden="true" tabindex="-1"></a>          ), <span class="at">levels =</span> cluster_levels)</span>
+<span id="cb10-382"><a href="#cb10-382" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb10-383"><a href="#cb10-383" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb10-384"><a href="#cb10-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-385"><a href="#cb10-385" aria-hidden="true" tabindex="-1"></a>    panels <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">compact</span>(panels)</span>
+<span id="cb10-386"><a href="#cb10-386" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(panels) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb10-387"><a href="#cb10-387" aria-hidden="true" tabindex="-1"></a>      lisa_sf <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(panels) <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>()</span>
+<span id="cb10-388"><a href="#cb10-388" aria-hidden="true" tabindex="-1"></a>      ncols <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="dv">3</span>L, <span class="fu">length</span>(<span class="fu">unique</span>(lisa_sf<span class="sc">$</span>var_label)))</span>
+<span id="cb10-389"><a href="#cb10-389" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-390"><a href="#cb10-390" aria-hidden="true" tabindex="-1"></a>      ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(lisa_sf) <span class="sc">+</span></span>
+<span id="cb10-391"><a href="#cb10-391" aria-hidden="true" tabindex="-1"></a>        ggplot2<span class="sc">::</span><span class="fu">geom_sf</span>(ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">fill =</span> cluster),</span>
+<span id="cb10-392"><a href="#cb10-392" aria-hidden="true" tabindex="-1"></a>                         <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.15</span>) <span class="sc">+</span></span>
+<span id="cb10-393"><a href="#cb10-393" aria-hidden="true" tabindex="-1"></a>        ggplot2<span class="sc">::</span><span class="fu">scale_fill_manual</span>(<span class="at">values =</span> cluster_colors,</span>
+<span id="cb10-394"><a href="#cb10-394" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">name   =</span> <span class="st">"LISA Cluster"</span>,</span>
+<span id="cb10-395"><a href="#cb10-395" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">drop   =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb10-396"><a href="#cb10-396" aria-hidden="true" tabindex="-1"></a>        ggplot2<span class="sc">::</span><span class="fu">facet_wrap</span>(<span class="sc">~</span>var_label, <span class="at">ncol =</span> ncols) <span class="sc">+</span></span>
+<span id="cb10-397"><a href="#cb10-397" aria-hidden="true" tabindex="-1"></a>        ggplot2<span class="sc">::</span><span class="fu">theme_void</span>(<span class="at">base_size =</span> <span class="dv">9</span>) <span class="sc">+</span></span>
+<span id="cb10-398"><a href="#cb10-398" aria-hidden="true" tabindex="-1"></a>        ggplot2<span class="sc">::</span><span class="fu">theme</span>(</span>
+<span id="cb10-399"><a href="#cb10-399" aria-hidden="true" tabindex="-1"></a>          <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb10-400"><a href="#cb10-400" aria-hidden="true" tabindex="-1"></a>          <span class="at">strip.text      =</span> ggplot2<span class="sc">::</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">7</span>, <span class="at">face =</span> <span class="st">"bold"</span>,</span>
+<span id="cb10-401"><a href="#cb10-401" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">margin =</span> ggplot2<span class="sc">::</span><span class="fu">margin</span>(<span class="at">b =</span> <span class="dv">3</span>)),</span>
+<span id="cb10-402"><a href="#cb10-402" aria-hidden="true" tabindex="-1"></a>          <span class="at">plot.margin     =</span> ggplot2<span class="sc">::</span><span class="fu">margin</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">4</span>)</span>
+<span id="cb10-403"><a href="#cb10-403" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb10-404"><a href="#cb10-404" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb10-405"><a href="#cb10-405" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cat</span>(<span class="st">"&gt; No J_ variables with sufficient data for LISA.</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb10-406"><a href="#cb10-406" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb10-407"><a href="#cb10-407" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-408"><a href="#cb10-408" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-409"><a href="#cb10-409" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-410"><a href="#cb10-410" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-411"><a href="#cb10-411" aria-hidden="true" tabindex="-1"></a><span class="fu">### Moran Scatterplots</span></span>
+<span id="cb10-412"><a href="#cb10-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-413"><a href="#cb10-413" aria-hidden="true" tabindex="-1"></a><span class="in">```{r moran-scatter}</span></span>
+<span id="cb10-414"><a href="#cb10-414" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 8</span></span>
+<span id="cb10-415"><a href="#cb10-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-416"><a href="#cb10-416" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb10-417"><a href="#cb10-417" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-418"><a href="#cb10-418" aria-hidden="true" tabindex="-1"></a>  scatter_plots <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(lisa_vars, <span class="cf">function</span>(v) {</span>
+<span id="cb10-419"><a href="#cb10-419" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> geo_cross[[v]]</span>
+<span id="cb10-420"><a href="#cb10-420" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)) <span class="sc">&lt;</span> <span class="dv">20</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb10-421"><a href="#cb10-421" aria-hidden="true" tabindex="-1"></a>    x[<span class="fu">is.na</span>(x)] <span class="ot">&lt;-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-422"><a href="#cb10-422" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">==</span> <span class="dv">0</span> <span class="sc">||</span> <span class="fu">is.na</span>(<span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb10-423"><a href="#cb10-423" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-424"><a href="#cb10-424" aria-hidden="true" tabindex="-1"></a>    xz <span class="ot">&lt;-</span> <span class="fu">scale</span>(x)[, <span class="dv">1</span>]</span>
+<span id="cb10-425"><a href="#cb10-425" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">any</span>(<span class="sc">!</span><span class="fu">is.finite</span>(xz))) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb10-426"><a href="#cb10-426" aria-hidden="true" tabindex="-1"></a>    lag_xz <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">lag.listw</span>(lw, xz, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-427"><a href="#cb10-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-428"><a href="#cb10-428" aria-hidden="true" tabindex="-1"></a>    clean_name <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"^J_"</span>, <span class="st">""</span>, <span class="fu">gsub</span>(<span class="st">"__.*"</span>, <span class="st">""</span>, v))</span>
 <span id="cb10-429"><a href="#cb10-429" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-430"><a href="#cb10-430" aria-hidden="true" tabindex="-1"></a>    panels <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">compact</span>(panels)</span>
-<span id="cb10-431"><a href="#cb10-431" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(panels) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb10-432"><a href="#cb10-432" aria-hidden="true" tabindex="-1"></a>      lisa_sf <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(panels) <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>()</span>
-<span id="cb10-433"><a href="#cb10-433" aria-hidden="true" tabindex="-1"></a>      ncols <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="dv">3</span>L, <span class="fu">length</span>(<span class="fu">unique</span>(lisa_sf<span class="sc">$</span>var_label)))</span>
-<span id="cb10-434"><a href="#cb10-434" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-435"><a href="#cb10-435" aria-hidden="true" tabindex="-1"></a>      ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(lisa_sf) <span class="sc">+</span></span>
-<span id="cb10-436"><a href="#cb10-436" aria-hidden="true" tabindex="-1"></a>        ggplot2<span class="sc">::</span><span class="fu">geom_sf</span>(ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">fill =</span> cluster),</span>
-<span id="cb10-437"><a href="#cb10-437" aria-hidden="true" tabindex="-1"></a>                         <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.15</span>) <span class="sc">+</span></span>
-<span id="cb10-438"><a href="#cb10-438" aria-hidden="true" tabindex="-1"></a>        ggplot2<span class="sc">::</span><span class="fu">scale_fill_manual</span>(<span class="at">values =</span> cluster_colors,</span>
-<span id="cb10-439"><a href="#cb10-439" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">name   =</span> <span class="st">"LISA Cluster"</span>,</span>
-<span id="cb10-440"><a href="#cb10-440" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">drop   =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb10-441"><a href="#cb10-441" aria-hidden="true" tabindex="-1"></a>        ggplot2<span class="sc">::</span><span class="fu">facet_wrap</span>(<span class="sc">~</span>var_label, <span class="at">ncol =</span> ncols) <span class="sc">+</span></span>
-<span id="cb10-442"><a href="#cb10-442" aria-hidden="true" tabindex="-1"></a>        ggplot2<span class="sc">::</span><span class="fu">theme_void</span>(<span class="at">base_size =</span> <span class="dv">9</span>) <span class="sc">+</span></span>
-<span id="cb10-443"><a href="#cb10-443" aria-hidden="true" tabindex="-1"></a>        ggplot2<span class="sc">::</span><span class="fu">theme</span>(</span>
-<span id="cb10-444"><a href="#cb10-444" aria-hidden="true" tabindex="-1"></a>          <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
-<span id="cb10-445"><a href="#cb10-445" aria-hidden="true" tabindex="-1"></a>          <span class="at">strip.text      =</span> ggplot2<span class="sc">::</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">7</span>, <span class="at">face =</span> <span class="st">"bold"</span>,</span>
-<span id="cb10-446"><a href="#cb10-446" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">margin =</span> ggplot2<span class="sc">::</span><span class="fu">margin</span>(<span class="at">b =</span> <span class="dv">3</span>)),</span>
-<span id="cb10-447"><a href="#cb10-447" aria-hidden="true" tabindex="-1"></a>          <span class="at">plot.margin     =</span> ggplot2<span class="sc">::</span><span class="fu">margin</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">4</span>)</span>
-<span id="cb10-448"><a href="#cb10-448" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb10-449"><a href="#cb10-449" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb10-450"><a href="#cb10-450" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cat</span>(<span class="st">"&gt; No J_ variables with sufficient data for LISA.</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb10-451"><a href="#cb10-451" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb10-452"><a href="#cb10-452" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-453"><a href="#cb10-453" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-454"><a href="#cb10-454" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-455"><a href="#cb10-455" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-456"><a href="#cb10-456" aria-hidden="true" tabindex="-1"></a><span class="fu">### Moran Scatterplots</span></span>
-<span id="cb10-457"><a href="#cb10-457" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-458"><a href="#cb10-458" aria-hidden="true" tabindex="-1"></a><span class="in">```{r moran-scatter}</span></span>
-<span id="cb10-459"><a href="#cb10-459" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 8</span></span>
-<span id="cb10-460"><a href="#cb10-460" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-461"><a href="#cb10-461" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(pdet_munis) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(panel) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb10-462"><a href="#cb10-462" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-463"><a href="#cb10-463" aria-hidden="true" tabindex="-1"></a>  scatter_plots <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(lisa_vars, <span class="cf">function</span>(v) {</span>
-<span id="cb10-464"><a href="#cb10-464" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> geo_cross[[v]]</span>
-<span id="cb10-465"><a href="#cb10-465" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)) <span class="sc">&lt;</span> <span class="dv">20</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb10-466"><a href="#cb10-466" aria-hidden="true" tabindex="-1"></a>    x[<span class="fu">is.na</span>(x)] <span class="ot">&lt;-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-467"><a href="#cb10-467" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">==</span> <span class="dv">0</span> <span class="sc">||</span> <span class="fu">is.na</span>(<span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb10-468"><a href="#cb10-468" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-469"><a href="#cb10-469" aria-hidden="true" tabindex="-1"></a>    xz <span class="ot">&lt;-</span> <span class="fu">scale</span>(x)[, <span class="dv">1</span>]</span>
-<span id="cb10-470"><a href="#cb10-470" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">any</span>(<span class="sc">!</span><span class="fu">is.finite</span>(xz))) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb10-471"><a href="#cb10-471" aria-hidden="true" tabindex="-1"></a>    lag_xz <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">lag.listw</span>(lw, xz, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-472"><a href="#cb10-472" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-473"><a href="#cb10-473" aria-hidden="true" tabindex="-1"></a>    clean_name <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"^J_"</span>, <span class="st">""</span>, <span class="fu">gsub</span>(<span class="st">"__.*"</span>, <span class="st">""</span>, v))</span>
-<span id="cb10-474"><a href="#cb10-474" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-475"><a href="#cb10-475" aria-hidden="true" tabindex="-1"></a>    df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> xz, <span class="at">lag_x =</span> lag_xz)</span>
-<span id="cb10-476"><a href="#cb10-476" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> lag_x)) <span class="sc">+</span></span>
-<span id="cb10-477"><a href="#cb10-477" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">size =</span> <span class="dv">2</span>, <span class="at">color =</span> <span class="st">"#2166ac"</span>) <span class="sc">+</span></span>
-<span id="cb10-478"><a href="#cb10-478" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"#b2182b"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb10-479"><a href="#cb10-479" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
-<span id="cb10-480"><a href="#cb10-480" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
-<span id="cb10-481"><a href="#cb10-481" aria-hidden="true" tabindex="-1"></a>      <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb10-482"><a href="#cb10-482" aria-hidden="true" tabindex="-1"></a>      <span class="fu">labs</span>(<span class="at">title =</span> clean_name,</span>
-<span id="cb10-483"><a href="#cb10-483" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="st">"Standardized value"</span>,</span>
-<span id="cb10-484"><a href="#cb10-484" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> <span class="st">"Spatial lag"</span>) <span class="sc">+</span></span>
-<span id="cb10-485"><a href="#cb10-485" aria-hidden="true" tabindex="-1"></a>      <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="cn">Inf</span>, <span class="at">y =</span> <span class="cn">Inf</span>, <span class="at">hjust =</span> <span class="fl">1.1</span>, <span class="at">vjust =</span> <span class="fl">1.5</span>,</span>
-<span id="cb10-486"><a href="#cb10-486" aria-hidden="true" tabindex="-1"></a>               <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"I = %.3f"</span>,</span>
-<span id="cb10-487"><a href="#cb10-487" aria-hidden="true" tabindex="-1"></a>                                moran_results<span class="sc">$</span>morans_I[moran_results<span class="sc">$</span>variable <span class="sc">==</span> v]),</span>
-<span id="cb10-488"><a href="#cb10-488" aria-hidden="true" tabindex="-1"></a>               <span class="at">size =</span> <span class="dv">4</span>, <span class="at">color =</span> <span class="st">"#b2182b"</span>)</span>
-<span id="cb10-489"><a href="#cb10-489" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb10-490"><a href="#cb10-490" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-491"><a href="#cb10-491" aria-hidden="true" tabindex="-1"></a>  scatter_plots <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">compact</span>(scatter_plots)</span>
-<span id="cb10-492"><a href="#cb10-492" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(scatter_plots) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb10-493"><a href="#cb10-493" aria-hidden="true" tabindex="-1"></a>    patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(scatter_plots, <span class="at">ncol =</span> <span class="dv">2</span>)</span>
-<span id="cb10-494"><a href="#cb10-494" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-495"><a href="#cb10-495" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-496"><a href="#cb10-496" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-497"><a href="#cb10-497" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-498"><a href="#cb10-498" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb10-499"><a href="#cb10-499" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-500"><a href="#cb10-500" aria-hidden="true" tabindex="-1"></a>---</span>
-<span id="cb10-501"><a href="#cb10-501" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-502"><a href="#cb10-502" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
-<span id="cb10-503"><a href="#cb10-503" aria-hidden="true" tabindex="-1"></a><span class="fu">## Research context</span></span>
-<span id="cb10-504"><a href="#cb10-504" aria-hidden="true" tabindex="-1"></a>The spatial diagnostics above test whether dispute resolution infrastructure (justice rooms, conciliators, restitution sentences) clusters geographically. **Positive spatial autocorrelation** (high Moran's I, significant High-High and Low-Low clusters) would support constructing a latent dispute resolution capacity variable using spatial factor analysis methods.</span>
-<span id="cb10-505"><a href="#cb10-505" aria-hidden="true" tabindex="-1"></a>:::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+<span id="cb10-430"><a href="#cb10-430" aria-hidden="true" tabindex="-1"></a>    df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> xz, <span class="at">lag_x =</span> lag_xz)</span>
+<span id="cb10-431"><a href="#cb10-431" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> lag_x)) <span class="sc">+</span></span>
+<span id="cb10-432"><a href="#cb10-432" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">size =</span> <span class="dv">2</span>, <span class="at">color =</span> <span class="st">"#2166ac"</span>) <span class="sc">+</span></span>
+<span id="cb10-433"><a href="#cb10-433" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"#b2182b"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb10-434"><a href="#cb10-434" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
+<span id="cb10-435"><a href="#cb10-435" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
+<span id="cb10-436"><a href="#cb10-436" aria-hidden="true" tabindex="-1"></a>      <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb10-437"><a href="#cb10-437" aria-hidden="true" tabindex="-1"></a>      <span class="fu">labs</span>(<span class="at">title =</span> clean_name,</span>
+<span id="cb10-438"><a href="#cb10-438" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="st">"Standardized value"</span>,</span>
+<span id="cb10-439"><a href="#cb10-439" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> <span class="st">"Spatial lag"</span>) <span class="sc">+</span></span>
+<span id="cb10-440"><a href="#cb10-440" aria-hidden="true" tabindex="-1"></a>      <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="cn">Inf</span>, <span class="at">y =</span> <span class="cn">Inf</span>, <span class="at">hjust =</span> <span class="fl">1.1</span>, <span class="at">vjust =</span> <span class="fl">1.5</span>,</span>
+<span id="cb10-441"><a href="#cb10-441" aria-hidden="true" tabindex="-1"></a>               <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"I = %.3f"</span>,</span>
+<span id="cb10-442"><a href="#cb10-442" aria-hidden="true" tabindex="-1"></a>                                moran_results<span class="sc">$</span>morans_I[moran_results<span class="sc">$</span>variable <span class="sc">==</span> v]),</span>
+<span id="cb10-443"><a href="#cb10-443" aria-hidden="true" tabindex="-1"></a>               <span class="at">size =</span> <span class="dv">4</span>, <span class="at">color =</span> <span class="st">"#b2182b"</span>)</span>
+<span id="cb10-444"><a href="#cb10-444" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb10-445"><a href="#cb10-445" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-446"><a href="#cb10-446" aria-hidden="true" tabindex="-1"></a>  scatter_plots <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">compact</span>(scatter_plots)</span>
+<span id="cb10-447"><a href="#cb10-447" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(scatter_plots) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb10-448"><a href="#cb10-448" aria-hidden="true" tabindex="-1"></a>    patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(scatter_plots, <span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb10-449"><a href="#cb10-449" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-450"><a href="#cb10-450" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-451"><a href="#cb10-451" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-452"><a href="#cb10-452" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-453"><a href="#cb10-453" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-454"><a href="#cb10-454" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-455"><a href="#cb10-455" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb10-456"><a href="#cb10-456" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-457"><a href="#cb10-457" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb10-458"><a href="#cb10-458" aria-hidden="true" tabindex="-1"></a><span class="fu">## Research context</span></span>
+<span id="cb10-459"><a href="#cb10-459" aria-hidden="true" tabindex="-1"></a>The spatial diagnostics above test whether dispute resolution infrastructure (justice rooms, conciliators, restitution sentences) clusters geographically. **Positive spatial autocorrelation** (high Moran's I, significant High-High and Low-Low clusters) would support constructing a latent dispute resolution capacity variable using spatial factor analysis methods.</span>
+<span id="cb10-460"><a href="#cb10-460" aria-hidden="true" tabindex="-1"></a>:::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 <footer class="footer">
