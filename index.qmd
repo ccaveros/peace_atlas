@@ -1,0 +1,186 @@
+---
+title: "Peace Atlas — PDET Colombia"
+subtitle: "Exploratory Spatial Analysis of Peace Indicator Candidates · GEOG 560 · Spring 2026"
+author: "Cecilia Cavero-Sanchez"
+date: last-modified
+format:
+  html:
+    toc: false
+---
+
+```{r setup, include=FALSE}
+source(here::here("R", "setup.R"))
+```
+
+## Project Overview
+
+This site is the interactive deliverable for **GEOG 560: Spatial Regression** (Spring 2026). It is also the methodological groundwork for **Chapter 1** of my dissertation, *The Architecture of Peace*, which examines how peacebuilding network structure shapes peace outcomes across Colombia's most conflict-affected municipalities following the 2016 Peace Agreement.
+
+The core question across all panels is: **do municipal-level indicators of peace and institutional capacity in post-conflict Colombia cohere as a latent construct, or do they pick up fundamentally different things?** And critically: how does their spatial distribution---clustering, regime structure, boundary sensitivity---inform or distort that answer?
+
+::: {.callout-note collapse="true"}
+## Background: What are PDET municipalities?
+
+Colombia's 2016 Peace Agreement between the government and the FARC guerrilla established **Programas de Desarrollo con Enfoque Territorial (PDET)** -- Territorial Development Programs with a Territorial Focus. The PDET framework designated **170 municipalities** across 16 subregions as priority zones for post-conflict reconstruction based on four criteria: (1) high historical presence of armed conflict and illegal economies, (2) high poverty rates, (3) weak institutional presence, and (4) environmental or agricultural vulnerability.
+
+These 170 municipalities -- the unit of analysis throughout this site -- are not a random sample. They are the municipalities where the state has historically been weakest, where armed groups have exercised the most governance, and where the peace agreement's implementation faces the highest structural barriers. This matters for interpretation: low institutional indicators here reflect structural conditions, not just measurement error.
+
+**Key acronyms used across this site:**
+
+| Acronym | Full name | What it measures |
+|---------|-----------|-----------------|
+| CNMH | Centro Nacional de Memoria Historica | Documented conflict events 2000-2025 |
+| UCDP | Uppsala Conflict Data Program | Battle events and deaths |
+| JEP/VERDATA | Special Peace Jurisdiction / VERDATA | Validated homicide estimates 2000-2018 |
+| CERAC | Centro de Recursos para el Analisis de Conflictos | False positives and armed presence 2000-2010 |
+| SLJ | Salas de Justicia Local | Community justice center presence |
+| PDET | Programas de Desarrollo con Enfoque Territorial | Peace agreement priority zones |
+| ART | Agencia de Renovacion del Territorio | Government reconstruction agency |
+| SIIPO | Sistema Integrado de Informacion | PDET implementation monitoring |
+| APC | Agencia Presidencial de Cooperacion | International aid coordination |
+| DNP | Departamento Nacional de Planeacion | National planning / municipal statistics |
+| IGAC | Instituto Geografico Agustin Codazzi | Land cadastre and Gini |
+| ANT | Agencia Nacional de Tierras | Territorial land registry |
+| URT | Unidad de Restitucion de Tierras | Land restitution tribunal |
+| PRIO | Peace Research Institute Oslo (GRID) | Geospatial conflict-relevant indicators |
+:::
+
+---
+
+---
+
+## Panel Summary
+
+The dataset is a **long-format panel** of `r length(unique(panel$dane_code))` PDET municipalities over `r length(unique(panel$year))` years (`r min(panel$year)`--`r max(panel$year)`) with `r ncol(panel) - 2` data variables organized into 5 categories:
+
+| Category | Prefix | Variables | Description |
+|---|---|---|---|
+| Violence & Conflict | `V_` | `r sum(startsWith(names(panel), "V_"))` | CNMH event types, UCDP, VERDATA homicides, CERAC, Daly, Aponte |
+| Peacebuilding | `P_` | `r sum(startsWith(names(panel), "P_"))` | SIIPO implementation, ART construction, APC aid, PDET initiatives |
+| Justice & Dispute | `J_` | `r sum(startsWith(names(panel), "J_"))` | SLJ justice rooms, Casas de Justicia, conciliators, URT restitution |
+| Socioeconomic | `S_` | `r sum(startsWith(names(panel), "S_"))` | DNP population, poverty, GDP, fiscal capacity, land Gini |
+| Geographic | `G_` | `r sum(startsWith(names(panel), "G_"))` | PRIO-GRID terrain, nightlight, forest cover, indigenous/Afro territory |
+
+All variables follow the naming convention: **`{Category}_{descriptive_name}__{source}`**
+
+---
+
+## Data Coverage
+
+```{r coverage-plot}
+#| fig-height: 6
+
+if (nrow(panel) > 0) {
+  data_vars <- setdiff(names(panel), c("dane_code", "year"))
+  numeric_vars <- data_vars[sapply(panel[data_vars], is.numeric)]
+
+  # Count PDET municipalities with at least 1 non-NA value per variable
+  coverage <- purrr::map_dfr(numeric_vars, function(v) {
+    n <- panel |>
+      dplyr::group_by(dane_code) |>
+      dplyr::summarise(has = any(!is.na(.data[[v]])), .groups = "drop") |>
+      dplyr::pull(has) |> sum()
+    tibble::tibble(
+      variable = v,
+      n_munis  = n,
+      category = dplyr::case_when(
+        startsWith(v, "V_") ~ "Violence & Conflict",
+        startsWith(v, "P_") ~ "Peacebuilding",
+        startsWith(v, "J_") ~ "Justice & Dispute",
+        startsWith(v, "S_") ~ "Socioeconomic",
+        startsWith(v, "G_") ~ "Geographic",
+        TRUE ~ "Other"
+      ),
+      source = sub(".*__", "", v)
+    )
+  })
+
+  # Show top variables per category
+  cat_colors <- c(
+    "Violence & Conflict" = "#b2182b",
+    "Peacebuilding"       = "#1b7837",
+    "Justice & Dispute"   = "#2166ac",
+    "Socioeconomic"       = "#8c510a",
+    "Geographic"          = "#542788"
+  )
+
+  top_vars <- coverage |>
+    dplyr::group_by(category) |>
+    dplyr::slice_max(n_munis, n = 5, with_ties = FALSE) |>
+    dplyr::ungroup()
+
+  clean_label <- gsub("__.*", "", gsub("^[VPJSG]_", "", top_vars$variable))
+
+  p <- ggplot(top_vars, aes(x = n_munis,
+                             y = reorder(clean_label, n_munis),
+                             fill = category)) +
+    geom_col(width = 0.7) +
+    geom_vline(xintercept = 170, linetype = "dashed", color = "grey40") +
+    scale_fill_manual(values = cat_colors, name = "Category") +
+    scale_x_continuous(limits = c(0, 180), expand = c(0, 0)) +
+    facet_wrap(~category, scales = "free_y", ncol = 1) +
+    labs(x = "PDET municipalities with data (max = 170)", y = NULL,
+         title = "Data Coverage: Top 5 Variables per Category") +
+    theme_minimal(base_size = 10) +
+    theme(legend.position = "none",
+          strip.text = element_text(face = "bold"),
+          panel.grid.major.y = element_blank())
+  p
+}
+```
+
+---
+
+## Quick Geography
+
+```{r overview-map}
+#| fig-cap: "PDET municipalities (blue) shown on CartoDB.Positron basemap. The tile layer provides Colombia and regional context; the 170 PDET polygons are the unit of analysis."
+
+# NOTE: col_munis (1,122 Colombian municipalities, 31 MB) is intentionally NOT
+# added as a polygon layer. Embedding it as inline GeoJSON causes Quarto's
+# sitemap JSON.stringify to exceed JavaScript's string length limit and crash.
+# The CartoDB.Positron tile already shows all Colombian departments and neighbors.
+if (!is.null(pdet_munis)) {
+  leaflet::leaflet(options = leaflet::leafletOptions(minZoom = 4)) |>
+    leaflet::addProviderTiles("CartoDB.Positron") |>
+    leaflet::addPolygons(
+      data             = pdet_munis,
+      fillColor        = "#2166ac",
+      fillOpacity      = 0.55,
+      color            = "#1a2e44",
+      weight           = 0.8,
+      popup            = ~paste0("<b>", muni_name, "</b><br/>",
+                                 dept_name, "<br/>",
+                                 "DANE: ", dane_code),
+      highlightOptions = leaflet::highlightOptions(
+        weight = 2, color = "#0d1b2a", fillOpacity = 0.85, bringToFront = TRUE
+      )
+    ) |>
+    leaflet::addLegend(
+      colors   = "#2166ac",
+      labels   = paste0("PDET municipalities (n = ", nrow(pdet_munis), ")"),
+      position = "bottomright"
+    ) |>
+    leaflet::addScaleBar(position = "bottomleft") |>
+    leaflet::setView(lng = -73.5, lat = 4.5, zoom = 5)
+} else {
+  cat("> Geometry not loaded. Run 01_build_geometry.R first.\n")
+}
+```
+
+---
+
+## Navigation Guide
+
+| Page | What you will find | Best for |
+|---|---|---|
+| [**Variable Atlas**](panel1_atlas.qmd) | Choropleth maps for all 5 variable categories; one map per tab with a layer switcher; Global Moran's I table; missingness map | Getting oriented to the spatial distribution of any indicator |
+| [**Descriptives**](descriptives.qmd) | Distribution histograms, temporal trends, diagnostic flags (zero-inflation, high NA, skewness, static variables) per category | Understanding data quality and coverage before modeling |
+| [**Bivariate & Spatial**](panel2_bivariate.qmd) | Pairwise scatterplots between key variables; bivariate Moran's I; LISA cluster maps; MAUP sensitivity check | Exploring relationships between violence, justice, and peacebuilding |
+| [**Regression Models**](panel3_regression.qmd) | OLS, spatial lag (SLM), spatial error (SEM), Durbin (SDM) models; residual maps | Formal covariate analysis accounting for spatial dependence |
+| [**Explorer**](explorer.qmd) | Fully interactive variable browser by category; LISA maps and Moran scatterplots for justice variables | Open-ended exploration; sharing with collaborators |
+| [**Data Audit**](audit.qmd) | Gap analysis by source; MAUP boundary decisions; crosswalk diagnostics | Methodological transparency and data provenance |
+
+::: {.callout-tip}
+**New to this site?** Start with the **Variable Atlas** to get a visual sense of the geographic distribution of conflict and institutions. Then check **Descriptives** to understand data quality. The **Explorer** is best for open-ended browsing.
+:::

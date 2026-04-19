@@ -1,0 +1,1104 @@
+---
+title: "Panel 3 · Regression Models"
+subtitle: "SLM · SEM · SDM · Spatial Regime · EFA/IRT latent composite"
+date: last-modified
+---
+
+```{r setup}
+#| include: false
+
+source(here::here("R", "setup.R"))
+library(spatialreg)
+
+# ── Build cross-section for regression (mean per muni across years) ──────────
+data_vars    <- setdiff(names(panel), c("dane_code", "year"))
+numeric_vars <- data_vars[sapply(panel[data_vars], is.numeric)]
+
+# Carry forward subregion (character) separately
+subregion_tbl <- panel |>
+  dplyr::distinct(dane_code, subregion) |>
+  dplyr::group_by(dane_code) |>
+  dplyr::slice(1) |>
+  dplyr::ungroup()
+
+reg_base <- panel |>
+  dplyr::group_by(dane_code) |>
+  dplyr::summarise(
+    dplyr::across(dplyr::all_of(numeric_vars), ~ mean(.x, na.rm = TRUE)),
+    .groups = "drop"
+  ) |>
+  dplyr::left_join(subregion_tbl, by = "dane_code")
+
+# ── OLS formula (used throughout) ─────────────────────────────────────────────
+formula_ols <- log1p(J_n_conciliadores__concil) ~
+  P_tratado_acum__art_inv +
+  P_log_dosis_acum__art_inv +
+  log1p(V_conflict_events_all__ucdp) +
+  S_nbi__dnp +
+  log1p(S_pop_total__dnp) +
+  G_terrain_ruggedness__prio +
+  G_indigenous_pct_covered__ant
+
+# ── Spatial weights builder ────────────────────────────────────────────────────
+# Always built fresh on the complete-case subset passed in.
+# Returns list(lw = listw, nb = nb, idx = integer row indices in pdet_munis)
+build_weights <- function(sf_obj, style = "W") {
+  nb <- spdep::poly2nb(sf_obj, queen = TRUE)
+  lw <- spdep::nb2listw(nb, style = style, zero.policy = TRUE)
+  list(lw = lw, nb = nb)
+}
+
+# ── Diverging palette helper for residual maps ─────────────────────────────────
+resid_pal <- function(vals) {
+  lim <- max(abs(vals), na.rm = TRUE)
+  leaflet::colorNumeric(
+    palette = c("#2166ac", "#f7f7f7", "#b2182b"),
+    domain  = c(-lim, lim),
+    na.color = "#cccccc"
+  )
+}
+```
+
+::: {.callout-note collapse="true"}
+## About this panel: Why spatial regression?
+
+Standard OLS assumes observations are independent. For municipal-level data in Colombia this assumption fails: neighbouring municipalities share geography, armed group activity, state infrastructure, and economic conditions. Ignoring spatial dependence inflates standard errors and biases coefficient estimates.
+
+This panel estimates four regression specifications of increasing complexity:
+
+| Model | What it assumes | When to use |
+|-------|----------------|-------------|
+| **OLS** | No spatial dependence (baseline) | Benchmark only |
+| **SLM (Spatial Lag)** | Outcome in municipality *i* depends on outcomes in neighbours (diffusion) | If peace/conflict spreads across borders |
+| **SEM (Spatial Error)** | Unmeasured confounders are spatially correlated | If omitted variables cluster geographically |
+| **SDM (Spatial Durbin)** | Both outcome and predictors have spatial spillovers | Most flexible; preferred if both effects are plausible |
+
+**Current outcome:** Log equity conciliators (log1p), a measure of local dispute resolution capacity.
+**Key predictors:** Ever-treated under the Peace Agreement, cumulative PDET investment, conflict exposure, basic needs deficit, population, terrain, indigenous territory coverage.
+
+Spatial weights use **Queen contiguity** on the complete-case PDET subset. Residual maps show whether spatial patterns remain after conditioning on included predictors.
+:::
+
+---
+
+## §3.1 Variable Assembly
+
+```{r var-assembly}
+#| label: var-assembly
+#| message: false
+
+# Key regression variables and their coverage across municipalities
+key_vars <- c(
+  "J_n_conciliadores__concil",
+  "J_n_cases_processed__casjust",
+  "J_n_justice_rooms__slj",
+  "P_tratado_acum__art_inv",
+  "P_log_dosis_acum__art_inv",
+  "P_n_initiatives_total__pdet",
+  "P_aid_usd__apc",
+  "V_conflict_events_all__ucdp",
+  "V_conflict_events_interior__ucdp",
+  "V_selective_killing_cases__cnmh",
+  "V_homicides_mean__jep",
+  "S_nbi__dnp",
+  "S_pop_total__dnp",
+  "S_rurality_index__dnp",
+  "S_gdp_percapita_constant__dnp",
+  "G_terrain_ruggedness__prio",
+  "G_indigenous_pct_covered__ant",
+  "G_afro_pct_covered__ant"
+)
+
+avail_vars <- key_vars[key_vars %in% names(reg_base)]
+miss_vars  <- setdiff(key_vars, avail_vars)
+
+coverage_tbl <- tibble::tibble(
+  Variable    = avail_vars,
+  N_nonmiss   = sapply(avail_vars, \(v) sum(!is.na(reg_base[[v]]))),
+  N_total     = nrow(reg_base),
+  Pct_cover   = round(N_nonmiss / N_total * 100, 1),
+  Mean        = sapply(avail_vars, \(v) round(mean(reg_base[[v]], na.rm = TRUE), 3)),
+  SD          = sapply(avail_vars, \(v) round(sd(reg_base[[v]],   na.rm = TRUE), 3)),
+  Min         = sapply(avail_vars, \(v) round(min(reg_base[[v]],  na.rm = TRUE), 3)),
+  Max         = sapply(avail_vars, \(v) round(max(reg_base[[v]],  na.rm = TRUE), 3))
+)
+
+DT::datatable(
+  coverage_tbl,
+  caption  = "Table 3.1 -- Variable coverage across 170 PDET municipalities (cross-sectional means, 2000-2025)",
+  rownames = FALSE,
+  options  = list(pageLength = 20, scrollX = TRUE, dom = "tip"),
+  class    = "compact stripe"
+) |>
+  DT::formatStyle("Pct_cover",
+    background = DT::styleColorBar(c(0, 100), "#4dac26"),
+    backgroundSize = "90% 60%",
+    backgroundRepeat = "no-repeat",
+    backgroundPosition = "center"
+  )
+
+if (length(miss_vars) > 0) {
+  cat(glue::glue(
+    "\nNote: {length(miss_vars)} variable(s) not found in reg_base and excluded:\n  {paste(miss_vars, collapse=', ')}\n"
+  ))
+}
+```
+
+::: {.callout-tip collapse="true"}
+## Variable naming convention
+
+Column names follow the pattern `{Dimension}_{concept}__{source}`:
+
+- **J**: Justice and dispute resolution infrastructure
+- **P**: Peacebuilding and PDET implementation
+- **V**: Violence and conflict exposure
+- **S**: Socioeconomic and structural controls
+- **G**: Geographic and territorial covariates
+:::
+
+---
+
+## §3.2 OLS Baseline
+
+::: {.callout-note collapse="true"}
+## Model choice: OLS as diagnostic baseline
+
+OLS serves two purposes here. First, it provides a coefficient benchmark against which spatial models can be compared. Second -- and more importantly -- the residual Moran's I test on OLS residuals tells us whether spatial autocorrelation is present and therefore whether spatial models are warranted. A significant positive Moran's I means nearby municipalities share unmodelled variance, violating the OLS independence assumption.
+:::
+
+```{r ols-baseline}
+#| label: ols-baseline
+#| message: false
+#| warning: false
+
+# Identify complete cases for the model formula variables
+model_vars <- c(
+  "dane_code",
+  "J_n_conciliadores__concil",
+  "P_tratado_acum__art_inv",
+  "P_log_dosis_acum__art_inv",
+  "V_conflict_events_all__ucdp",
+  "S_nbi__dnp",
+  "S_pop_total__dnp",
+  "G_terrain_ruggedness__prio",
+  "G_indigenous_pct_covered__ant"
+)
+
+avail_model_vars <- model_vars[model_vars %in% names(reg_base)]
+df_cc <- reg_base |>
+  dplyr::select(dplyr::all_of(avail_model_vars)) |>
+  tidyr::drop_na()
+
+cat(glue::glue(
+  "Complete cases for OLS: {nrow(df_cc)} of {nrow(reg_base)} municipalities\n"
+))
+
+ols_fit <- tryCatch({
+  lm(formula_ols, data = df_cc, na.action = na.omit)
+}, error = function(e) {
+  cat(glue::glue("OLS failed: {conditionMessage(e)}\n"))
+  NULL
+})
+
+if (!is.null(ols_fit)) {
+  print(summary(ols_fit))
+
+  # ── Build spatial weights on the complete-case geometry ─────────────────────
+  # Filter pdet_munis to match the complete-case rows, preserving row order
+  if (!is.null(pdet_munis)) {
+    sf_cc <- pdet_munis |>
+      dplyr::filter(dane_code %in% df_cc$dane_code) |>
+      dplyr::left_join(
+        df_cc |> dplyr::select(dane_code),
+        by = "dane_code"
+      )
+
+    wts_cc <- tryCatch(
+      build_weights(sf_cc),
+      error = function(e) {
+        cat(glue::glue("Weight construction failed: {conditionMessage(e)}\n"))
+        NULL
+      }
+    )
+
+    # ── Residual Moran's I ───────────────────────────────────────────────────
+    if (!is.null(wts_cc)) {
+      # Align residuals to sf_cc row order
+      resid_df  <- tibble::tibble(
+        dane_code = df_cc$dane_code,
+        resid     = residuals(ols_fit)
+      )
+      resid_aligned <- sf_cc |>
+        sf::st_drop_geometry() |>
+        dplyr::left_join(resid_df, by = "dane_code") |>
+        dplyr::pull(resid)
+
+      mi_test <- tryCatch(
+        spdep::moran.test(resid_aligned, wts_cc$lw, zero.policy = TRUE),
+        error = function(e) {
+          cat(glue::glue("Moran's I failed: {conditionMessage(e)}\n"))
+          NULL
+        }
+      )
+
+      if (!is.null(mi_test)) {
+        mi_val <- round(mi_test$estimate["Moran I statistic"], 4)
+        mi_p   <- round(mi_test$p.value, 4)
+        cat(glue::glue(
+          "\n--- Residual Moran's I ---\n",
+          "  I = {mi_val}   (p = {mi_p})\n"
+        ))
+        if (mi_test$p.value < 0.05) {
+          cat("  Significant spatial autocorrelation detected. Spatial model is warranted.\n")
+        } else {
+          cat("  No significant spatial autocorrelation in OLS residuals.\n")
+        }
+      }
+    }
+  } else {
+    cat("pdet_munis geometry not available -- skipping Moran's I diagnostic.\n")
+  }
+}
+```
+
+---
+
+## §3.3 Lagrange Multiplier Tests
+
+::: {.callout-note collapse="true"}
+## Reading the LM tests
+
+The four LM statistics diagnose which spatial model is appropriate:
+
+- **LMlag**: tests for a missing spatial lag of the outcome (favours SLM)
+- **LMerr**: tests for spatially autocorrelated errors (favours SEM)
+- **RLMlag** and **RLMerr**: robust versions that condition on the other effect
+
+Decision rule: if both raw tests are significant, choose the model whose robust version has the smaller p-value. If only one raw test is significant, prefer that model. If neither is significant, OLS is adequate.
+:::
+
+```{r lm-tests}
+#| label: lm-tests
+#| message: false
+#| warning: false
+
+lm_tests_result <- NULL
+
+if (!is.null(ols_fit) && !is.null(pdet_munis)) {
+  if (exists("wts_cc") && !is.null(wts_cc)) {
+    lm_tests_result <- tryCatch({
+      spdep::lm.LMtests(
+        ols_fit,
+        wts_cc$lw,
+        test         = c("LMerr", "LMlag", "RLMerr", "RLMlag"),
+        zero.policy  = TRUE
+      )
+    }, error = function(e) {
+      cat(glue::glue("LM tests failed: {conditionMessage(e)}\n"))
+      NULL
+    })
+  } else {
+    cat("Spatial weights not available -- rerunning weight construction.\n")
+  }
+}
+
+if (!is.null(lm_tests_result)) {
+  # Extract results into a tidy table
+  lm_df <- purrr::map_dfr(names(lm_tests_result), function(nm) {
+    r  <- lm_tests_result[[nm]]
+    tibble::tibble(
+      Test      = nm,
+      Statistic = round(r$statistic, 4),
+      df        = r$parameter,
+      P_value   = round(r$p.value, 5),
+      Sig       = dplyr::case_when(
+        r$p.value < 0.001 ~ "***",
+        r$p.value < 0.01  ~ "**",
+        r$p.value < 0.05  ~ "*",
+        r$p.value < 0.1   ~ ".",
+        TRUE              ~ ""
+      )
+    )
+  })
+
+  DT::datatable(
+    lm_df,
+    caption  = "Table 3.3 -- Lagrange Multiplier tests for spatial dependence",
+    rownames = FALSE,
+    options  = list(dom = "t", pageLength = 10),
+    class    = "compact stripe"
+  ) |>
+    DT::formatStyle("P_value",
+      color = DT::styleInterval(c(0.05, 0.1), c("red", "orange", "black"))
+    )
+
+  # Interpretive note
+  lag_sig <- lm_df$P_value[lm_df$Test == "LMlag"]  < 0.05
+  err_sig <- lm_df$P_value[lm_df$Test == "LMerr"]  < 0.05
+  rlag_p  <- lm_df$P_value[lm_df$Test == "RLMlag"]
+  rerr_p  <- lm_df$P_value[lm_df$Test == "RLMerr"]
+
+  if (isTRUE(lag_sig) && isTRUE(err_sig)) {
+    preferred <- ifelse(rlag_p < rerr_p, "SLM (spatial lag)", "SEM (spatial error)")
+    cat(glue::glue(
+      "\nBoth LMlag and LMerr are significant. The robust tests favour the {preferred}.\n"
+    ))
+  } else if (isTRUE(lag_sig)) {
+    cat("\nOnly LMlag is significant: SLM (spatial lag model) is preferred.\n")
+  } else if (isTRUE(err_sig)) {
+    cat("\nOnly LMerr is significant: SEM (spatial error model) is preferred.\n")
+  } else {
+    cat("\nNeither LM test is significant. OLS residuals do not exhibit detectable spatial dependence at alpha = 0.05.\n")
+  }
+} else {
+  cat("LM tests could not be computed. Ensure OLS fit and spatial weights are available.\n")
+}
+```
+
+---
+
+## §3.4 Spatial Lag Model (SLM)
+
+::: {.callout-note collapse="true"}
+## What the SLM captures
+
+The SLM adds a spatial lag of the outcome -- a weighted average of neighbouring municipalities' conciliator counts -- to the right-hand side. A positive and significant spatial lag coefficient (rho) indicates that the outcome diffuses across municipal boundaries: municipalities adjacent to high-capacity ones tend to develop higher capacity themselves, possibly through shared state presence, referral networks, or spillover investment.
+:::
+
+```{r slm}
+#| label: slm
+#| message: false
+#| warning: false
+
+slm_fit <- NULL
+
+if (!is.null(ols_fit) && exists("wts_cc") && !is.null(wts_cc) && !is.null(sf_cc)) {
+  # Join complete-case data onto the ordered sf object
+  sf_model <- sf_cc |>
+    dplyr::left_join(df_cc, by = "dane_code")
+
+  slm_fit <- tryCatch({
+    spatialreg::lagsarlm(
+      formula_ols,
+      data        = sf_model,
+      listw       = wts_cc$lw,
+      zero.policy = TRUE
+    )
+  }, error = function(e) {
+    cat(glue::glue("SLM failed: {conditionMessage(e)}\n"))
+    NULL
+  })
+}
+
+if (!is.null(slm_fit)) {
+  print(summary(slm_fit))
+
+  # ── Residual map ──────────────────────────────────────────────────────────
+  slm_resids <- residuals(slm_fit)
+  resid_df_slm <- sf_cc |>
+    dplyr::mutate(resid = slm_resids)
+
+  pal_slm <- resid_pal(slm_resids)
+  lim_slm <- round(max(abs(slm_resids), na.rm = TRUE), 3)
+
+  leaflet::leaflet(resid_df_slm) |>
+    leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron) |>
+    leaflet::addPolygons(
+      fillColor   = ~pal_slm(resid),
+      fillOpacity = 0.8,
+      color       = "#555", weight = 0.4, opacity = 0.6,
+      label       = ~htmltools::HTML(glue::glue(
+        "<b>{dane_code}</b><br/>SLM residual: <b>{round(resid, 3)}</b>"
+      )),
+      highlightOptions = leaflet::highlightOptions(
+        weight = 2, color = "#222", fillOpacity = 0.95, bringToFront = TRUE
+      )
+    ) |>
+    leaflet::addLegend(
+      pal      = pal_slm,
+      values   = ~resid,
+      title    = glue::glue("SLM residual<br/>(range: -{lim_slm} to {lim_slm})"),
+      position = "bottomright",
+      opacity  = 0.85
+    ) |>
+    leaflet::addScaleBar(position = "bottomleft") |>
+    leaflet::setView(lng = -74.3, lat = 3.9, zoom = 5)
+} else {
+  cat("SLM could not be estimated. Check that spatial weights and complete-case data are available.\n")
+}
+```
+
+---
+
+## §3.5 Spatial Error Model (SEM)
+
+::: {.callout-note collapse="true"}
+## What the SEM captures
+
+The SEM models spatial dependence in the error term rather than the outcome itself. This is appropriate when the spatial clustering of residuals arises from omitted variables that are geographically correlated -- for example, unmeasured differences in departmental-level governance quality, historical state presence, or cultural factors that vary across PDET subregions. The lambda coefficient measures the degree of spatial contagion in those unobservables.
+:::
+
+```{r sem}
+#| label: sem
+#| message: false
+#| warning: false
+
+sem_fit <- NULL
+
+if (!is.null(ols_fit) && exists("wts_cc") && !is.null(wts_cc) && exists("sf_model")) {
+  sem_fit <- tryCatch({
+    spatialreg::errorsarlm(
+      formula_ols,
+      data        = sf_model,
+      listw       = wts_cc$lw,
+      zero.policy = TRUE
+    )
+  }, error = function(e) {
+    cat(glue::glue("SEM failed: {conditionMessage(e)}\n"))
+    NULL
+  })
+}
+
+if (!is.null(sem_fit)) {
+  print(summary(sem_fit))
+
+  # ── Residual map ──────────────────────────────────────────────────────────
+  sem_resids <- residuals(sem_fit)
+  resid_df_sem <- sf_cc |>
+    dplyr::mutate(resid = sem_resids)
+
+  pal_sem <- resid_pal(sem_resids)
+  lim_sem <- round(max(abs(sem_resids), na.rm = TRUE), 3)
+
+  leaflet::leaflet(resid_df_sem) |>
+    leaflet::addProviderTiles(leaflet::providers$CartoDB.Positron) |>
+    leaflet::addPolygons(
+      fillColor   = ~pal_sem(resid),
+      fillOpacity = 0.8,
+      color       = "#555", weight = 0.4, opacity = 0.6,
+      label       = ~htmltools::HTML(glue::glue(
+        "<b>{dane_code}</b><br/>SEM residual: <b>{round(resid, 3)}</b>"
+      )),
+      highlightOptions = leaflet::highlightOptions(
+        weight = 2, color = "#222", fillOpacity = 0.95, bringToFront = TRUE
+      )
+    ) |>
+    leaflet::addLegend(
+      pal      = pal_sem,
+      values   = ~resid,
+      title    = glue::glue("SEM residual<br/>(range: -{lim_sem} to {lim_sem})"),
+      position = "bottomright",
+      opacity  = 0.85
+    ) |>
+    leaflet::addScaleBar(position = "bottomleft") |>
+    leaflet::setView(lng = -74.3, lat = 3.9, zoom = 5)
+} else {
+  cat("SEM could not be estimated. Check that spatial weights and complete-case data are available.\n")
+}
+```
+
+---
+
+## §3.6 Spatial Durbin Model (SDM)
+
+::: {.callout-note collapse="true"}
+## Why the SDM and direct/indirect effects?
+
+The SDM nests both the SLM and SEM as special cases. It adds spatially lagged predictors alongside the spatial lag of the outcome. This matters for interpretation: in the SLM, the coefficient on a predictor captures only the *direct* effect in municipality *i*. The SDM allows us to separately estimate:
+
+- **Direct effect**: impact of the predictor in *i* on the outcome in *i* (including feedback through the spatial lag)
+- **Indirect effect**: spillover to neighbouring municipalities *j* through the spatial multiplier
+- **Total effect**: direct + indirect
+
+For a peacebuilding variable like cumulative PDET investment, finding a significant indirect effect would suggest that investment in one municipality improves dispute resolution capacity in its neighbours.
+:::
+
+```{r sdm}
+#| label: sdm
+#| message: false
+#| warning: false
+
+sdm_fit <- NULL
+
+if (!is.null(ols_fit) && exists("wts_cc") && !is.null(wts_cc) && exists("sf_model")) {
+  sdm_fit <- tryCatch({
+    spatialreg::lagsarlm(
+      formula_ols,
+      data        = sf_model,
+      listw       = wts_cc$lw,
+      type        = "Durbin",
+      zero.policy = TRUE
+    )
+  }, error = function(e) {
+    cat(glue::glue("SDM failed: {conditionMessage(e)}\n"))
+    NULL
+  })
+}
+
+if (!is.null(sdm_fit)) {
+  print(summary(sdm_fit))
+
+  # ── Direct / Indirect / Total effects ────────────────────────────────────
+  sdm_impacts <- tryCatch({
+    spatialreg::impacts(sdm_fit, listw = wts_cc$lw, zero.policy = TRUE, R = 500)
+  }, error = function(e) {
+    cat(glue::glue("impacts() failed: {conditionMessage(e)}\n"))
+    NULL
+  })
+
+  if (!is.null(sdm_impacts)) {
+    imp_sum <- summary(sdm_impacts, zstats = TRUE, short = TRUE)
+
+    # Build a tidy display table from the impacts object
+    build_impact_tbl <- function(imp_obj) {
+      d <- as.data.frame(imp_obj$res)
+      d$Variable <- rownames(d)
+      rownames(d) <- NULL
+      d <- d[, c("Variable", names(d)[names(d) != "Variable"])]
+      d
+    }
+
+    direct_tbl <- tryCatch({
+      tibble::tibble(
+        Variable = names(sdm_impacts$res$direct),
+        Direct   = round(as.numeric(sdm_impacts$res$direct),   4),
+        Indirect = round(as.numeric(sdm_impacts$res$indirect), 4),
+        Total    = round(as.numeric(sdm_impacts$res$total),    4)
+      )
+    }, error = function(e) NULL)
+
+    if (!is.null(direct_tbl)) {
+      DT::datatable(
+        direct_tbl,
+        caption  = "Table 3.6 -- SDM direct, indirect, and total effects",
+        rownames = FALSE,
+        options  = list(dom = "t", pageLength = 15),
+        class    = "compact stripe"
+      ) |>
+        DT::formatStyle(
+          c("Direct", "Indirect", "Total"),
+          color = DT::styleInterval(0, c("#b2182b", "#1b7837"))
+        )
+    } else {
+      print(imp_sum)
+    }
+  }
+} else {
+  cat("SDM could not be estimated. Check that spatial weights and complete-case data are available.\n")
+}
+```
+
+---
+
+## §3.7 Spatial Regime Model
+
+::: {.callout-note collapse="true"}
+## Rationale for conflict-intensity regimes
+
+The relationship between peacebuilding investment and justice infrastructure may not be constant across the PDET territory. In municipalities with entrenched armed conflict, the state's capacity to install and operate conciliation mechanisms may be suppressed regardless of investment levels -- a context in which the `P_tratado_acum__art_inv` coefficient would be attenuated or even negative. Splitting by conflict intensity tercile provides a simple test of this heterogeneity. A large difference in the treatment coefficient across regimes would suggest that aggregate models mask important conditional effects.
+:::
+
+```{r regime}
+#| label: regime
+#| message: false
+#| warning: false
+
+if (!is.null(ols_fit) && "V_conflict_events_all__ucdp" %in% names(df_cc)) {
+
+  # Define regimes: top tercile vs. bottom two thirds by average conflict events
+  tercile_cut  <- quantile(df_cc$V_conflict_events_all__ucdp, 2/3, na.rm = TRUE)
+  df_cc_regime <- df_cc |>
+    dplyr::mutate(
+      conflict_regime = dplyr::if_else(
+        V_conflict_events_all__ucdp >= tercile_cut, "High conflict", "Low conflict"
+      )
+    )
+
+  n_high <- sum(df_cc_regime$conflict_regime == "High conflict")
+  n_low  <- sum(df_cc_regime$conflict_regime == "Low conflict")
+  cat(glue::glue(
+    "Conflict regime split (top tercile threshold = {round(tercile_cut, 2)}):\n",
+    "  High conflict: {n_high} municipalities\n",
+    "  Low conflict:  {n_low} municipalities\n\n"
+  ))
+
+  # ── OLS in each regime ────────────────────────────────────────────────────
+  run_regime_ols <- function(regime_label, df_sub) {
+    if (nrow(df_sub) < 10) {
+      cat(glue::glue("  Regime '{regime_label}': too few cases ({nrow(df_sub)}) -- skipping.\n"))
+      return(NULL)
+    }
+    tryCatch(
+      lm(formula_ols, data = df_sub, na.action = na.omit),
+      error = function(e) {
+        cat(glue::glue("  Regime '{regime_label}' OLS failed: {conditionMessage(e)}\n"))
+        NULL
+      }
+    )
+  }
+
+  ols_high <- run_regime_ols("High conflict", df_cc_regime |> dplyr::filter(conflict_regime == "High conflict"))
+  ols_low  <- run_regime_ols("Low conflict",  df_cc_regime |> dplyr::filter(conflict_regime == "Low conflict"))
+
+  # ── Coefficient comparison table ─────────────────────────────────────────
+  extract_coefs <- function(fit, label) {
+    if (is.null(fit)) return(NULL)
+    cf <- broom::tidy(fit, conf.int = TRUE)
+    cf$Regime <- label
+    cf
+  }
+
+  # broom may not be loaded; fall back to manual extraction
+  safe_tidy <- function(fit, label) {
+    tryCatch({
+      library(broom)
+      extract_coefs(fit, label)
+    }, error = function(e) {
+      if (is.null(fit)) return(NULL)
+      s   <- summary(fit)$coefficients
+      tibble::tibble(
+        term      = rownames(s),
+        estimate  = round(s[, "Estimate"], 4),
+        std.error = round(s[, "Std. Error"], 4),
+        statistic = round(s[, "t value"], 3),
+        p.value   = round(s[, "Pr(>|t|)"], 5),
+        conf.low  = round(s[, "Estimate"] - 1.96 * s[, "Std. Error"], 4),
+        conf.high = round(s[, "Estimate"] + 1.96 * s[, "Std. Error"], 4),
+        Regime    = label
+      )
+    })
+  }
+
+  coef_high <- safe_tidy(ols_high, "High conflict")
+  coef_low  <- safe_tidy(ols_low,  "Low conflict")
+
+  if (!is.null(coef_high) && !is.null(coef_low)) {
+    coef_cmp <- dplyr::bind_rows(coef_high, coef_low) |>
+      dplyr::select(Regime, term, estimate, std.error, p.value, conf.low, conf.high) |>
+      dplyr::arrange(term, Regime)
+
+    DT::datatable(
+      coef_cmp,
+      caption  = "Table 3.7 -- OLS coefficients by conflict-intensity regime",
+      rownames = FALSE,
+      options  = list(pageLength = 20, scrollX = TRUE, dom = "tip"),
+      class    = "compact stripe"
+    ) |>
+      DT::formatStyle("p.value",
+        color = DT::styleInterval(c(0.01, 0.05, 0.1), c("red", "orangered", "orange", "black"))
+      ) |>
+      DT::formatStyle("Regime",
+        backgroundColor = DT::styleEqual(
+          c("High conflict", "Low conflict"), c("#fde0dd", "#e5f5e0")
+        )
+      )
+
+    # Highlight P_tratado comparison specifically
+    trat_var <- "P_tratado_acum__art_inv"
+    rows_trat <- coef_cmp |> dplyr::filter(term == trat_var)
+    if (nrow(rows_trat) == 2) {
+      est_h <- rows_trat$estimate[rows_trat$Regime == "High conflict"]
+      est_l <- rows_trat$estimate[rows_trat$Regime == "Low conflict"]
+      cat(glue::glue(
+        "\nP_tratado_acum__art_inv coefficient:\n",
+        "  High-conflict regime: {est_h}\n",
+        "  Low-conflict regime:  {est_l}\n",
+        "  Difference (Low - High): {round(est_l - est_h, 4)}\n"
+      ))
+    }
+  }
+
+  # ── Plotly coefficient plot ───────────────────────────────────────────────
+  if (!is.null(coef_high) && !is.null(coef_low)) {
+    coef_plot_df <- dplyr::bind_rows(coef_high, coef_low) |>
+      dplyr::filter(term != "(Intercept)")
+
+    p_regime <- plotly::plot_ly(
+      coef_plot_df,
+      x      = ~estimate,
+      y      = ~term,
+      color  = ~Regime,
+      colors = c("High conflict" = "#b2182b", "Low conflict" = "#2166ac"),
+      type   = "scatter",
+      mode   = "markers",
+      error_x = list(
+        type        = "data",
+        symmetric   = FALSE,
+        array       = ~(conf.high - estimate),
+        arrayminus  = ~(estimate - conf.low),
+        visible     = TRUE,
+        thickness   = 2
+      ),
+      text   = ~paste0(
+        "<b>", term, "</b><br/>",
+        "Regime: ", Regime, "<br/>",
+        "Estimate: ", round(estimate, 4), "<br/>",
+        "95% CI: [", round(conf.low, 4), ", ", round(conf.high, 4), "]"
+      ),
+      hoverinfo = "text"
+    ) |>
+      plotly::layout(
+        title  = "Coefficient estimates by conflict-intensity regime (95% CI)",
+        xaxis  = list(title = "Coefficient estimate", zeroline = TRUE),
+        yaxis  = list(title = ""),
+        legend = list(orientation = "h", x = 0, y = -0.15)
+      )
+    p_regime
+  }
+
+} else {
+  cat("Conflict regime model requires OLS fit and V_conflict_events_all__ucdp in the data.\n")
+}
+```
+
+---
+
+## §3.8 Model Comparison
+
+::: {.callout-note collapse="true"}
+## Interpreting AIC and BIC
+
+Lower AIC/BIC indicates better model fit penalised for complexity. Both criteria trade off goodness-of-fit against the number of parameters; BIC applies a stronger penalty for larger samples. For spatial models, a substantially lower AIC relative to OLS (difference > 4) confirms that accounting for spatial structure improves model performance. If SLM and SEM perform similarly, the SDM is preferred on theoretical grounds if spillover effects are plausible.
+:::
+
+```{r model-compare}
+#| label: model-compare
+#| message: false
+#| warning: false
+
+extract_fit_stats <- function(fit, label) {
+  if (is.null(fit)) return(NULL)
+
+  aic_val    <- tryCatch(AIC(fit),    error = function(e) NA_real_)
+  bic_val    <- tryCatch(BIC(fit),    error = function(e) NA_real_)
+  ll_val     <- tryCatch({
+    ll <- logLik(fit)
+    as.numeric(ll)
+  }, error = function(e) NA_real_)
+  nobs_val   <- tryCatch(nobs(fit),   error = function(e) NA_integer_)
+
+  tibble::tibble(
+    Model  = label,
+    N      = nobs_val,
+    LogLik = round(ll_val,  3),
+    AIC    = round(aic_val, 3),
+    BIC    = round(bic_val, 3)
+  )
+}
+
+compare_tbl <- dplyr::bind_rows(
+  extract_fit_stats(ols_fit, "OLS"),
+  extract_fit_stats(slm_fit, "SLM"),
+  extract_fit_stats(sem_fit, "SEM"),
+  extract_fit_stats(sdm_fit, "SDM")
+)
+
+if (nrow(compare_tbl) > 0) {
+  # Flag the best (lowest AIC) model
+  best_aic <- which.min(compare_tbl$AIC)
+  compare_tbl$Best_AIC <- ""
+  if (length(best_aic) > 0) compare_tbl$Best_AIC[best_aic] <- "[*]"
+
+  best_bic <- which.min(compare_tbl$BIC)
+  compare_tbl$Best_BIC <- ""
+  if (length(best_bic) > 0) compare_tbl$Best_BIC[best_bic] <- "[*]"
+
+  DT::datatable(
+    compare_tbl,
+    caption  = "Table 3.8 -- Model fit comparison: OLS, SLM, SEM, SDM",
+    rownames = FALSE,
+    options  = list(dom = "t", pageLength = 10),
+    class    = "compact stripe"
+  ) |>
+    DT::formatStyle("AIC",
+      background = DT::styleColorBar(range(compare_tbl$AIC, na.rm = TRUE), "#fde0dd"),
+      backgroundSize = "80% 60%",
+      backgroundRepeat = "no-repeat",
+      backgroundPosition = "center"
+    )
+
+  # Plotly bar chart for AIC
+  if (sum(!is.na(compare_tbl$AIC)) > 1) {
+    p_compare <- plotly::plot_ly(
+      compare_tbl,
+      x    = ~Model,
+      y    = ~AIC,
+      type = "bar",
+      marker = list(
+        color = c("#444444", "#2166ac", "#4dac26", "#762a83")[seq_len(nrow(compare_tbl))]
+      ),
+      text = ~paste0("AIC: ", AIC, "<br/>BIC: ", BIC, "<br/>LogLik: ", LogLik),
+      hoverinfo = "text"
+    ) |>
+      plotly::layout(
+        title  = "AIC by model specification (lower is better)",
+        xaxis  = list(title = "Model"),
+        yaxis  = list(title = "AIC")
+      )
+    p_compare
+  }
+
+  # Interpretive note
+  non_na <- compare_tbl |> dplyr::filter(!is.na(AIC))
+  if (nrow(non_na) > 1) {
+    best_row  <- non_na[which.min(non_na$AIC), ]
+    ols_aic   <- non_na$AIC[non_na$Model == "OLS"]
+    delta_aic <- if (length(ols_aic) > 0) round(ols_aic - best_row$AIC, 2) else NA
+    cat(glue::glue(
+      "\nBest model by AIC: {best_row$Model} (AIC = {best_row$AIC})\n"
+    ))
+    if (!is.na(delta_aic) && best_row$Model != "OLS") {
+      cat(glue::glue(
+        "delta-AIC vs. OLS: {delta_aic} -- spatial model {ifelse(delta_aic > 4, 'substantially', 'marginally')} preferred.\n"
+      ))
+    }
+  }
+} else {
+  cat("No model results available for comparison.\n")
+}
+```
+
+---
+
+## §3.9 MAUP Weights Sensitivity
+
+::: {.callout-note collapse="true"}
+## Why weight specification matters (MAUP)
+
+The Modifiable Areal Unit Problem (MAUP) arises because spatial statistics depend on how boundaries are drawn and how neighbours are defined. Results can vary across weight specifications: Queen contiguity treats all polygon-sharing neighbours equally; k-nearest neighbours (KNN) treat the *k* geographically closest centroids as neighbours regardless of shared borders. Comparing Moran's I for a key variable (conflict events) across weight specs tells us how robust the measured spatial clustering is to the operationalisation of "neighbourhood."
+:::
+
+```{r maup-sensitivity}
+#| label: maup-sensitivity
+#| message: false
+#| warning: false
+
+if (!is.null(pdet_munis)) {
+  # Restrict to municipalities that appear in the conflict variable
+  sf_maup <- pdet_munis
+  if ("V_conflict_events_all__ucdp" %in% names(reg_base)) {
+    sf_maup <- pdet_munis |>
+      dplyr::left_join(
+        reg_base |> dplyr::select(dane_code, V_conflict_events_all__ucdp),
+        by = "dane_code"
+      ) |>
+      dplyr::filter(!is.na(V_conflict_events_all__ucdp))
+  }
+
+  conflict_vals <- sf_maup$V_conflict_events_all__ucdp
+
+  # Build four weight matrices on the same geometry
+  build_wts_maup <- function(sf_obj, spec) {
+    coords <- sf::st_coordinates(sf::st_centroid(sf::st_geometry(sf_obj)))
+    tryCatch({
+      if (spec == "queen") {
+        nb <- spdep::poly2nb(sf_obj, queen = TRUE)
+      } else {
+        k  <- as.integer(sub("knn", "", spec))
+        nb <- spdep::knn2nb(spdep::knearneigh(coords, k = k))
+      }
+      lw <- spdep::nb2listw(nb, style = "W", zero.policy = TRUE)
+      list(lw = lw, spec = spec, ok = TRUE)
+    }, error = function(e) {
+      list(lw = NULL, spec = spec, ok = FALSE, err = conditionMessage(e))
+    })
+  }
+
+  wt_specs <- c("queen", "knn4", "knn6", "knn8")
+  wt_list  <- purrr::map(wt_specs, ~ build_wts_maup(sf_maup, .x))
+
+  # Compute Moran's I for each spec
+  maup_results <- purrr::map_dfr(wt_list, function(w) {
+    if (!w$ok || is.null(w$lw)) {
+      return(tibble::tibble(
+        Spec     = w$spec,
+        Moran_I  = NA_real_,
+        P_value  = NA_real_,
+        Std_dev  = NA_real_,
+        N_munis  = nrow(sf_maup),
+        Status   = paste0("Failed: ", w$err)
+      ))
+    }
+    mi <- tryCatch(
+      spdep::moran.test(conflict_vals, w$lw, zero.policy = TRUE),
+      error = function(e) NULL
+    )
+    if (is.null(mi)) {
+      return(tibble::tibble(
+        Spec     = w$spec,
+        Moran_I  = NA_real_,
+        P_value  = NA_real_,
+        Std_dev  = NA_real_,
+        N_munis  = nrow(sf_maup),
+        Status   = "Moran test failed"
+      ))
+    }
+    tibble::tibble(
+      Spec    = w$spec,
+      Moran_I = round(mi$estimate["Moran I statistic"], 4),
+      P_value = round(mi$p.value, 5),
+      Std_dev = round(mi$estimate["Standard deviate"], 4),
+      N_munis = nrow(sf_maup),
+      Status  = "OK"
+    )
+  })
+
+  DT::datatable(
+    maup_results,
+    caption  = "Table 3.9 -- Moran's I for conflict events under four weight specifications (MAUP sensitivity)",
+    rownames = FALSE,
+    options  = list(dom = "t", pageLength = 10),
+    class    = "compact stripe"
+  ) |>
+    DT::formatStyle("Moran_I",
+      background = DT::styleColorBar(c(0, max(maup_results$Moran_I, na.rm = TRUE)), "#c6dbef"),
+      backgroundSize = "90% 60%",
+      backgroundRepeat = "no-repeat",
+      backgroundPosition = "center"
+    ) |>
+    DT::formatStyle("P_value",
+      color = DT::styleInterval(c(0.01, 0.05), c("red", "orange", "black"))
+    )
+
+  # Bar chart
+  maup_ok <- maup_results |> dplyr::filter(Status == "OK")
+  if (nrow(maup_ok) > 0) {
+    p_maup <- plotly::plot_ly(
+      maup_ok,
+      x    = ~Spec,
+      y    = ~Moran_I,
+      type = "bar",
+      marker = list(color = "#2166ac"),
+      error_y = list(
+        type      = "constant",
+        value     = 0,
+        visible   = FALSE
+      ),
+      text      = ~paste0("Spec: ", Spec, "<br/>I = ", Moran_I, "<br/>p = ", P_value),
+      hoverinfo = "text"
+    ) |>
+      plotly::layout(
+        title  = "Moran's I for conflict events by weight specification",
+        xaxis  = list(title = "Weight specification"),
+        yaxis  = list(title = "Moran's I", range = c(0, max(maup_ok$Moran_I) * 1.2))
+      )
+    p_maup
+  }
+
+  # Stability note
+  ok_vals <- maup_ok$Moran_I
+  if (length(ok_vals) >= 2) {
+    range_i <- round(max(ok_vals) - min(ok_vals), 4)
+    cat(glue::glue(
+      "\nMoran's I range across weight specs: {range_i}.",
+      " {ifelse(range_i < 0.05, 'Results are stable across specifications.', 'Moderate sensitivity to weight choice -- Queen and KNN results diverge.')}",
+      "\n"
+    ))
+  }
+
+} else {
+  cat("pdet_munis geometry not available -- skipping MAUP sensitivity analysis.\n")
+}
+```
+
+---
+
+## §3.10 Latent Composite (EFA Factor Scores)
+
+::: {.callout-note collapse="true"}
+## EFA and spatial structure
+
+Exploratory factor analysis was run separately to extract latent dimensions from the justice and peace indicators in the panel. This section loads the resulting factor scores and tests whether they retain spatial autocorrelation. If factor scores show significant Moran's I, it means the latent dimension itself is geographically clustered -- an important substantive finding suggesting that institutional peace capacity is not randomly distributed across the PDET territory but reflects spatial processes (diffusion, regional governance, or common exposure to conflict). A non-significant result would suggest the factor captures individual municipal characteristics not shared with neighbours.
+:::
+
+```{r latent}
+#| label: latent
+#| message: false
+#| warning: false
+
+factor_path <- here::here("output", "factor_scores.csv")
+
+if (file.exists(factor_path)) {
+  factor_scores <- readr::read_csv(factor_path, show_col_types = FALSE)
+  cat(glue::glue(
+    "Loaded factor scores: {nrow(factor_scores)} rows x {ncol(factor_scores)} columns\n",
+    "Columns: {paste(names(factor_scores), collapse=', ')}\n\n"
+  ))
+
+  # Identify factor columns (assumed to start with "MR" or "PA" or "Factor" or "F")
+  factor_cols <- names(factor_scores)[grepl("^(MR|PA|Factor|F)[0-9]", names(factor_scores))]
+  if (length(factor_cols) == 0) {
+    # Fall back: any numeric columns other than dane_code/year/id
+    factor_cols <- setdiff(
+      names(factor_scores)[sapply(factor_scores, is.numeric)],
+      c("dane_code", "year", "id", "code")
+    )
+  }
+
+  if (length(factor_cols) == 0) {
+    cat("No factor score columns identified. Check column names in factor_scores.csv.\n")
+  } else if (!is.null(pdet_munis) && "dane_code" %in% names(factor_scores)) {
+    # Join to geometry
+    sf_factors <- pdet_munis |>
+      dplyr::left_join(factor_scores, by = "dane_code") |>
+      dplyr::filter(dplyr::if_all(dplyr::all_of(factor_cols[1]), ~ !is.na(.)))
+
+    if (nrow(sf_factors) >= 10) {
+      wts_factors <- tryCatch(
+        build_weights(sf_factors),
+        error = function(e) {
+          cat(glue::glue("Factor weights failed: {conditionMessage(e)}\n"))
+          NULL
+        }
+      )
+
+      if (!is.null(wts_factors)) {
+        moran_factor_results <- purrr::map_dfr(factor_cols, function(fc) {
+          vals <- sf_factors[[fc]]
+          if (sum(!is.na(vals)) < 5 || var(vals, na.rm = TRUE) == 0) {
+            return(tibble::tibble(Factor = fc, Moran_I = NA_real_, P_value = NA_real_))
+          }
+          mi <- tryCatch(
+            spdep::moran.test(vals, wts_factors$lw, zero.policy = TRUE),
+            error = function(e) NULL
+          )
+          if (is.null(mi)) {
+            return(tibble::tibble(Factor = fc, Moran_I = NA_real_, P_value = NA_real_))
+          }
+          tibble::tibble(
+            Factor  = fc,
+            Moran_I = round(mi$estimate["Moran I statistic"], 4),
+            P_value = round(mi$p.value, 5)
+          )
+        })
+
+        DT::datatable(
+          moran_factor_results,
+          caption  = "Table 3.10 -- Moran's I on EFA factor scores",
+          rownames = FALSE,
+          options  = list(dom = "t", pageLength = 10),
+          class    = "compact stripe"
+        ) |>
+          DT::formatStyle("P_value",
+            color = DT::styleInterval(c(0.01, 0.05, 0.1), c("red", "orangered", "orange", "black"))
+          )
+      }
+    } else {
+      cat(glue::glue(
+        "Only {nrow(sf_factors)} matched municipalities after joining -- Moran's I skipped.\n"
+      ))
+    }
+  } else {
+    cat("pdet_munis geometry or dane_code column not available for spatial join.\n")
+  }
+
+} else {
+  cat(glue::glue(
+    "Factor scores file not found: {factor_path}\n\n",
+    "To generate factor scores:\n",
+    "  1. Run the EFA script (e.g., 02. analysis/efa_peace_composite.R)\n",
+    "  2. Save factor scores as output/factor_scores.csv with a dane_code column\n",
+    "  3. Re-render this panel to populate this section\n"
+  ))
+}
+```

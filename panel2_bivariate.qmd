@@ -1,0 +1,353 @@
+---
+title: "Panel 2 · Bivariate & Spatial Explorer"
+subtitle: "Pairwise scatterplots · Bivariate Moran's I · LISA maps · MAUP sensitivity"
+date: last-modified
+---
+
+```{r setup}
+#| include: false
+
+source(here::here("R", "setup.R"))
+library(data.table)
+
+# ── Helper: aggregate a panel variable to cross-section (mean across years) ──
+panel_cross <- function(var_col) {
+  if (!var_col %in% names(panel)) return(NULL)
+  panel |>
+    dplyr::group_by(dane_code) |>
+    dplyr::summarise(v = mean(.data[[var_col]], na.rm = TRUE), .groups = "drop")
+}
+
+# ── Spatial weights (Queen contiguity, PDET-only) ──
+lw_queen <- NULL
+get_lw <- function() {
+  if (is.null(lw_queen) && !is.null(pdet_munis)) {
+    pdet_sp <- sf::as_Spatial(pdet_munis)
+    nb <- spdep::poly2nb(pdet_sp, queen = TRUE)
+    lw_queen <<- spdep::nb2listw(nb, style = "W", zero.policy = TRUE)
+  }
+  lw_queen
+}
+
+# ── Core variable pairs for bivariate analysis ──
+# Using the new {Category}_{name}__{source} naming convention
+CORE_VARS <- list(
+  list(x_var="V_conflict_events_all__ucdp",     x_label="UCDP Events",
+       y_var="V_selective_killing_cases__cnmh",  y_label="CNMH Selective Killings",
+       title="UCDP vs. CNMH: conflict count cross-validation"),
+  list(x_var="V_conflict_events_all__ucdp",      x_label="Conflict Events (UCDP)",
+       y_var="J_n_justice_rooms__slj",            y_label="Salas de Justicia",
+       title="Conflict history vs. formal justice infrastructure"),
+  list(x_var="V_conflict_events_all__ucdp",      x_label="Conflict Events (UCDP)",
+       y_var="J_n_conciliadores__concil",         y_label="Equity Conciliators",
+       title="Conflict history vs. community mediation"),
+  list(x_var="V_homicides_mean__jep",             x_label="Homicide Rate (VERDATA)",
+       y_var="J_n_cases_processed__casjust",      y_label="Casas de Justicia Caseload",
+       title="Homicide rate vs. institutional justice demand"),
+  list(x_var="P_n_initiatives_total__pdet",       x_label="PDET Initiatives",
+       y_var="V_massacre_cases__cnmh",            y_label="CNMH Massacre Cases",
+       title="Peacebuilding investment vs. conflict history")
+)
+
+# ── MAUP sensitivity outputs (from 03_ucdp_maup.R) ──
+maup_weights <- tryCatch(readr::read_csv(file.path(PROC_DIR, "ucdp_maup_weights_sensitivity.csv"), show_col_types=FALSE), error=function(e) NULL)
+maup_byyear  <- tryCatch(readr::read_csv(file.path(PROC_DIR, "ucdp_maup_morans_by_year.csv"),      show_col_types=FALSE), error=function(e) NULL)
+maup_thresh  <- tryCatch(readr::read_csv(file.path(PROC_DIR, "ucdp_maup_threshold_sensitivity.csv"),show_col_types=FALSE), error=function(e) NULL)
+crossval     <- tryCatch(readRDS(file.path(PROC_DIR, "ucdp_cnmh_crossvalidation.rds")),            error=function(e) NULL)
+dept_cor     <- tryCatch(readr::read_csv(file.path(PROC_DIR, "ucdp_cnmh_crossval_by_dept.csv"),    show_col_types=FALSE), error=function(e) NULL)
+```
+
+::: {.callout-note collapse="true"}
+## About this panel
+
+This panel explores **relationships between variables** rather than the distribution of any single variable. Each section asks a different question:
+
+- **§2.1 Scatterplots:** Are conflict history and justice infrastructure correlated? Do municipalities with more peacebuilding investment have lower violence? Points are municipality means across all available years. Axes are log-scaled to handle extreme skew.
+- **§2.2 Bivariate Moran's I:** Does the geographic neighbor of a high-conflict municipality also have low justice infrastructure? Bivariate spatial autocorrelation tests this.
+- **§2.3 LISA Maps:** Which specific municipalities drive the spatial clustering? High-High = conflict cluster; Low-Low = peaceful cluster; High-Low / Low-High = spatial outliers (interesting cases).
+- **§2.4 MAUP Sensitivity:** Does the spatial pattern depend on how we allocate UCDP events to municipal boundaries? This section tests robustness to different aggregation rules.
+
+All spatial weights use **Queen contiguity** restricted to the 170 PDET municipalities.
+:::
+
+---
+
+## 2.1 Pairwise Scatterplots
+
+Scatterplots for key variable pairs across **PDET municipalities (n = 170)**. Each point is one municipality. Axes are log(1 + x) transformed. Hover for municipality names.
+
+::: panel-tabset
+```{r scatter-tabs}
+#| results: asis
+if (nrow(panel) > 0) {
+  for (pair in CORE_VARS) {
+    cat(glue::glue("\n\n### {pair$title}\n\n"))
+    xd <- panel_cross(pair$x_var)
+    yd <- panel_cross(pair$y_var)
+    if (is.null(xd) || is.null(yd)) {
+      cat("> One or both variables not in panel.\n\n")
+      next
+    }
+    df_join <- xd |>
+      dplyr::rename(x_val = v) |>
+      dplyr::inner_join(yd |> dplyr::rename(y_val = v), by = "dane_code") |>
+      dplyr::left_join(
+        pdet_munis |> sf::st_drop_geometry() |>
+          dplyr::select(dane_code, muni_name),
+        by = "dane_code") |>
+      dplyr::filter(!is.na(x_val) & !is.na(y_val))
+    if (nrow(df_join) < 5) {
+      cat("> Fewer than 5 matched rows.\n\n")
+      next
+    }
+    rho <- cor(log1p(df_join$x_val), log1p(df_join$y_val),
+               method = "spearman", use = "complete.obs")
+    p <- plotly::plot_ly(
+      df_join,
+      x = ~log1p(x_val), y = ~log1p(y_val),
+      type = "scatter", mode = "markers",
+      text = ~paste0("<b>", muni_name, "</b>",
+                     "<br>", pair$x_label, ": ", round(x_val, 1),
+                     "<br>", pair$y_label, ": ", round(y_val, 1)),
+      hoverinfo = "text",
+      marker = list(size = 7, opacity = 0.65, color = "#2166ac")
+    ) |>
+      plotly::layout(
+        title  = list(text = pair$title, font = list(size = 14)),
+        xaxis  = list(title = paste0("log(1 + ", pair$x_label, ")")),
+        yaxis  = list(title = paste0("log(1 + ", pair$y_label, ")")),
+        annotations = list(list(
+          x = 0.05, y = 0.95, xref = "paper", yref = "paper",
+          text = paste0("Spearman rho = ", round(rho, 3)),
+          showarrow = FALSE, font = list(size = 12)
+        ))
+      )
+    print(htmltools::tagList(p))
+    cat("\n\n")
+  }
+} else {
+  cat("> Panel not loaded. Run the pipeline first.\n")
+}
+```
+:::
+
+------------------------------------------------------------------------
+
+## 2.2 Bivariate Moran's I
+
+```{r bivariate-morans}
+compute_bivariate_moran <- function(x, y, lw) {
+  x[is.na(x)] <- 0
+  y[is.na(y)] <- 0
+  if (stats::var(x) == 0 || stats::var(y) == 0) return(c(I = NA, p = NA))
+  x_std <- as.numeric(scale(x))
+  y_std <- as.numeric(scale(y))
+  wy    <- spdep::lag.listw(lw, y_std, zero.policy = TRUE)
+  I     <- mean(x_std * wy)
+  perm_I <- replicate(999, {
+    yp  <- y_std[sample(length(y_std))]
+    wyp <- spdep::lag.listw(lw, yp, zero.policy = TRUE)
+    mean(x_std * wyp)
+  })
+  p <- mean(abs(perm_I) >= abs(I))
+  c(I = I, p = p)
+}
+
+lw_q <- get_lw()
+
+if (!is.null(lw_q) && !is.null(pdet_munis) && nrow(panel) > 0) {
+  # Build cross-section aligned with geometry
+  geo_base <- pdet_munis |> sf::st_drop_geometry() |> dplyr::select(dane_code)
+
+  biv_rows <- purrr::map(CORE_VARS, function(pair) {
+    xd <- panel_cross(pair$x_var)
+    yd <- panel_cross(pair$y_var)
+    if (is.null(xd) || is.null(yd)) return(NULL)
+    xv <- dplyr::left_join(geo_base, xd, by = "dane_code") |> dplyr::pull(v)
+    yv <- dplyr::left_join(geo_base, yd, by = "dane_code") |> dplyr::pull(v)
+    mi <- compute_bivariate_moran(xv, yv, lw_q)
+    tibble::tibble(X = pair$x_label, Y = pair$y_label,
+                   `Bivariate Moran's I` = round(mi["I"], 4),
+                   `p-value (perm)`      = round(mi["p"], 4))
+  })
+  biv_results <- dplyr::bind_rows(purrr::compact(biv_rows))
+
+  if (nrow(biv_results) > 0) {
+    DT::datatable(biv_results, rownames = FALSE,
+                  caption = "Bivariate Moran's I (999 permutations, queen weights, PDET municipalities)",
+                  options = list(dom = "t", pageLength = 20))
+  } else {
+    cat("> No variable pairs with sufficient data.\n")
+  }
+} else {
+  cat("> Panel or geometry not loaded.\n")
+}
+```
+
+------------------------------------------------------------------------
+
+## 2.3 LISA Maps
+
+::: panel-tabset
+```{r lisa-maps-p2}
+#| results: asis
+LISA_COLOURS <- c("HH" = "#b2182b", "LL" = "#2166ac",
+                  "HL" = "#f4a582", "LH" = "#92c5de",
+                  "Not significant" = "#dddddd")
+
+lisa_vars_p2 <- list(
+  list(var = "V_conflict_events_all__ucdp",     label = "UCDP Events"),
+  list(var = "V_selective_killing_cases__cnmh",  label = "CNMH Selective Killings"),
+  list(var = "V_homicides_mean__jep",            label = "Homicide Rate (VERDATA)"),
+  list(var = "J_n_justice_rooms__slj",           label = "Justice Rooms (SLJ)")
+)
+
+lw_q <- get_lw()
+
+if (!is.null(lw_q) && !is.null(pdet_munis) && nrow(panel) > 0) {
+  geo_base <- pdet_munis |> sf::st_drop_geometry() |> dplyr::select(dane_code)
+
+  for (lv in lisa_vars_p2) {
+    cat(glue::glue("\n\n### {lv$label}\n\n"))
+    vd <- panel_cross(lv$var)
+    if (is.null(vd)) {
+      cat("> Variable not in panel.\n\n")
+      next
+    }
+    vals <- dplyr::left_join(geo_base, vd, by = "dane_code") |> dplyr::pull(v)
+    vals[is.na(vals)] <- 0
+
+    if (stats::var(vals) == 0) {
+      cat("> Zero variance — skipping LISA.\n\n")
+      next
+    }
+    locm <- tryCatch(
+      suppressWarnings(spdep::localmoran(vals, lw_q, zero.policy = TRUE)),
+      error = function(e) NULL)
+    if (is.null(locm)) {
+      cat("> LISA computation failed.\n\n")
+      next
+    }
+    vals_std <- as.numeric(scale(vals))
+    lag_vals <- spdep::lag.listw(lw_q, vals_std, zero.policy = TRUE)
+    quad <- dplyr::case_when(
+      vals_std > 0 & lag_vals > 0 & locm[, 5] < 0.05 ~ "HH",
+      vals_std < 0 & lag_vals < 0 & locm[, 5] < 0.05 ~ "LL",
+      vals_std > 0 & lag_vals < 0 & locm[, 5] < 0.05 ~ "HL",
+      vals_std < 0 & lag_vals > 0 & locm[, 5] < 0.05 ~ "LH",
+      TRUE ~ "Not significant"
+    )
+    lisa_sf <- pdet_munis |>
+      dplyr::mutate(lisa_quad = quad,
+                    lisa_I    = locm[, 1],
+                    lisa_p    = locm[, 5])
+
+    lisa_sf$lisa_quad <- factor(lisa_sf$lisa_quad,
+                                 levels = c("HH","LL","HL","LH","Not significant"))
+    g <- ggplot2::ggplot(lisa_sf) +
+      ggplot2::geom_sf(ggplot2::aes(fill = lisa_quad),
+                       color = "grey30", linewidth = 0.2) +
+      ggplot2::scale_fill_manual(values = LISA_COLOURS, drop = FALSE,
+                                  name = "LISA (p<0.05)") +
+      ggplot2::labs(title = lv$label) +
+      ggplot2::theme_void(base_size = 10) +
+      ggplot2::theme(legend.position = "right")
+    print(g)
+    cat("\n\n")
+  }
+} else {
+  cat("> Panel or geometry not loaded.\n")
+}
+```
+:::
+
+------------------------------------------------------------------------
+
+## 2.4 MAUP Sensitivity (UCDP)
+
+::: panel-tabset
+### Weight matrix sensitivity
+
+```{r maup-weights}
+if (!is.null(maup_weights)) {
+  DT::datatable(dplyr::arrange(maup_weights, dplyr::desc(morans_I)),
+                rownames = FALSE, options = list(dom = "t"),
+                caption = "Moran's I under queen, rook, knn4 weights")
+} else {
+  cat("> ⚠️ `ucdp_maup_weights_sensitivity.csv` not found.\n")
+}
+```
+
+### Year-by-year Moran's I
+
+```{r maup-byyear}
+if (!is.null(maup_byyear)) {
+  mb <- maup_byyear |>
+    dplyr::mutate(
+      year = as.integer(stringr::str_extract(specification, "^[0-9]{4}")),
+      type = stringr::str_extract(specification, "all$|interior$")
+    ) |>
+    dplyr::filter(!is.na(year))
+  plotly::plot_ly(mb, x = ~year, y = ~morans_I, color = ~type,
+                  type = "scatter", mode = "lines+markers",
+                  colors = c("all" = "#b2182b", "interior" = "#2166ac")) |>
+    plotly::layout(title = "Year-by-year Moran's I (UCDP, queen weights)",
+                   xaxis = list(title = "Year"),
+                   yaxis = list(title = "Moran's I"))
+} else {
+  cat("> ⚠️ `ucdp_maup_morans_by_year.csv` not found.\n")
+}
+```
+
+### Boundary-distance threshold
+
+```{r maup-thresh}
+if (!is.null(maup_thresh)) {
+  DT::datatable(
+    dplyr::arrange(maup_thresh,
+                   as.numeric(stringr::str_extract(specification, "^[0-9]+"))),
+    rownames = FALSE, options = list(dom = "t"),
+    caption = "Moran's I sensitivity to boundary exclusion distance (km)")
+} else {
+  cat("> ⚠️ `ucdp_maup_threshold_sensitivity.csv` not found.\n")
+}
+```
+
+### UCDP × CNMH cross-validation
+
+```{r crossval-table}
+if (!is.null(crossval)) {
+  cv <- tryCatch(
+    crossval |>
+      dplyr::select(dplyr::any_of(c("dane_code", "muni_name", "dept_name",
+                                     "ucdp_total", "cnmh_total",
+                                     "log_ratio", "high_discrepancy",
+                                     "cnmh_source"))) |>
+      dplyr::arrange(dplyr::desc(abs(log_ratio))) |>
+      head(50),
+    error = function(e) NULL)
+  if (!is.null(cv)) {
+    DT::datatable(cv, rownames = FALSE,
+                  caption = "Top 50 by |log-ratio| (UCDP vs CNMH)",
+                  options = list(pageLength = 15, dom = "ftp"))
+  } else cat("> ⚠️ Could not parse crossval file.\n")
+} else {
+  cat("> ⚠️ `ucdp_cnmh_crossvalidation.rds` not found.\n")
+}
+```
+
+### Cross-validation by department
+
+```{r crossval-dept}
+if (!is.null(dept_cor)) {
+  DT::datatable(dplyr::arrange(dept_cor, rho_spearman),
+                rownames = FALSE,
+                caption = "Dept-level Spearman rho: UCDP vs CNMH (n >= 3)",
+                options = list(pageLength = 20, dom = "ftp")) |>
+    DT::formatStyle("rho_spearman",
+                    background = DT::styleColorBar(c(-1, 1), "#cce5ff"))
+} else {
+  cat("> ⚠️ `ucdp_cnmh_crossval_by_dept.csv` not found.\n")
+}
+```
+:::

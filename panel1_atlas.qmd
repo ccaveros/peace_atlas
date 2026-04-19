@@ -1,0 +1,321 @@
+---
+title: "Panel 1 · Variable Atlas"
+subtitle: "Choropleth per category · Global Moran's I · Missingness map"
+date: last-modified
+---
+
+```{r setup, include=FALSE}
+source(here::here("R", "setup.R"))
+library(DT)
+
+# ── Build cross-section: mean per municipality across all years ──
+data_vars    <- setdiff(names(panel), c("dane_code", "year"))
+numeric_vars <- data_vars[sapply(panel[data_vars], is.numeric)]
+
+cross_mean <- panel |>
+  dplyr::group_by(dane_code) |>
+  dplyr::summarise(dplyr::across(dplyr::all_of(numeric_vars),
+                                  ~ mean(.x, na.rm = TRUE)),
+                   .groups = "drop")
+
+# ── Spatial weights (PDET only, queen contiguity) ──
+lw_queen <- NULL
+if (!is.null(pdet_munis)) {
+  nb_queen <- spdep::poly2nb(sf::as_Spatial(pdet_munis), queen = TRUE)
+  lw_queen <- spdep::nb2listw(nb_queen, style = "W", zero.policy = TRUE)
+}
+
+compute_morans <- function(vals) {
+  if (is.null(lw_queen)) return(c(I = NA_real_, p = NA_real_))
+  vals[is.na(vals)] <- 0
+  if (var(vals) == 0) return(c(I = NA_real_, p = NA_real_))
+  mi <- tryCatch(
+    suppressWarnings(spdep::moran.test(vals, lw_queen, zero.policy = TRUE)),
+    error = function(e) NULL
+  )
+  if (is.null(mi)) return(c(I = NA_real_, p = NA_real_))
+  c(I = unname(mi$estimate["Moran I statistic"]), p = mi$p.value)
+}
+
+# ── Align cross-section to geometry order ──
+geo_cross <- pdet_munis |>
+  dplyr::left_join(cross_mean, by = "dane_code")
+
+# ── Key variables per category ──
+ATLAS_VARS <- list(
+  V = c("V_selective_killing_cases__cnmh", "V_massacre_cases__cnmh",
+        "V_forced_disappearance_cases__cnmh", "V_sexual_violence_cases__cnmh",
+        "V_landmine_cases__cnmh", "V_kidnapping_cases__cnmh",
+        "V_child_recruitment_cases__cnmh", "V_conflict_events_all__ucdp",
+        "V_homicides_mean__jep", "V_coca_cultivation__aponte",
+        "V_farc_presence__aponte", "V_eln_presence__aponte"),
+  P = c("P_impl_mean_all_pilars__art", "P_log_dosis_acum__art_inv",
+        "P_tratado_acum__art_inv", "P_share_p1_acum__art_inv",
+        "P_n_projects_completed__art", "P_aid_usd__apc",
+        "P_n_initiatives_total__pdet", "P_n_memory_initiatives__cnmh"),
+  J = c("J_n_justice_rooms__slj", "J_slj_present__slj",
+        "J_n_cases_processed__casjust", "J_n_conciliadores__concil",
+        "J_n_restitution_sentences__urt", "J_n_veedurias__rues",
+        "J_land_disputes_total__fiscalia", "J_cdj_cases__minjusticia"),
+  S = c("S_nbi__dnp", "S_ipm__dnp", "S_gdp_percapita_constant__dnp",
+        "S_gini_land__igac", "S_pop_total__dnp",
+        "S_rurality_index__dnp", "S_property_tax_pc__dnp",
+        "S_transfers_sgp_pc__dnp"),
+  G = c("G_terrain_ruggedness__prio", "G_nightlight__prio",
+        "G_travel_time_mean__prio", "G_forest_share__prio",
+        "G_indigenous_pct_covered__ant", "G_afro_pct_covered__ant",
+        "G_peasant_pct_covered__ant")
+)
+
+# ── Static ggplot2 atlas maps (avoids embedding large GeoJSON in HTML) ──
+# Each category produces a faceted PNG -- one panel per variable.
+# Leaflet is reserved for single-layer maps (missingness, LISA) where
+# interactivity matters and file size is controlled.
+build_atlas_map <- function(cat_key, viridis_option = "C") {
+  cat_vars <- intersect(ATLAS_VARS[[cat_key]], names(geo_cross))
+  cat_vars <- cat_vars[sapply(cat_vars, function(v) sum(!is.na(geo_cross[[v]])) >= 5)]
+  if (length(cat_vars) == 0) {
+    cat("> No variables with sufficient data for this category.\n")
+    return(invisible(NULL))
+  }
+
+  # Build long-format sf: one row per (muni × variable)
+  plot_list <- lapply(cat_vars, function(v) {
+    label <- gsub("__.*", "", gsub("^[VPJSG]_", "", v))
+    geo_cross |>
+      dplyr::transmute(
+        dane_code,
+        muni_name,
+        value     = .data[[v]],
+        var_label = label
+      )
+  })
+  plot_sf <- dplyr::bind_rows(plot_list) |> sf::st_as_sf()
+
+  # log1p transform for display (handles extreme right skew)
+  plot_sf <- plot_sf |>
+    dplyr::mutate(value_display = log1p(pmax(value, 0, na.rm = TRUE)))
+
+  ncols <- min(3L, length(cat_vars))
+
+  ggplot2::ggplot(plot_sf) +
+    ggplot2::geom_sf(ggplot2::aes(fill = value_display),
+                     color = "white", linewidth = 0.15) +
+    ggplot2::scale_fill_viridis_c(
+      option   = viridis_option,
+      na.value = "#e0e0e0",
+      name     = "log(1+x)",
+      guide    = ggplot2::guide_colorbar(barwidth = 6, barheight = 0.5,
+                                         title.position = "top")
+    ) +
+    ggplot2::facet_wrap(~var_label, ncol = ncols) +
+    ggplot2::theme_void(base_size = 9) +
+    ggplot2::theme(
+      legend.position  = "bottom",
+      strip.text       = ggplot2::element_text(size = 7, face = "bold",
+                                                margin = ggplot2::margin(b = 3)),
+      plot.margin      = ggplot2::margin(4, 4, 4, 4)
+    )
+}
+```
+
+## How to read this panel
+
+Each tab groups variables by **category**. Use the **layer control** (top-right of the map) to switch between variables within each category.
+
+- **Choropleth maps** show the **municipality mean** across all available years. Values are averaged over each variable's full temporal range (2000-2025 for most sources).
+- Click any municipality to see its name and DANE code in a popup.
+- Gray polygons have no data for that variable.
+- **Moran's I** is computed using Queen contiguity weights restricted to the 170 PDET municipalities.
+
+::: {.callout-note}
+**Color scales:** Violence = red/orange, Peacebuilding = green, Justice = blue, Socioeconomic = brown, Geographic = purple-green. Darker = higher value.
+:::
+
+::: {.callout-tip collapse="true"}
+## What each category captures
+
+**Violence & Conflict (V_):** Documented conflict events from multiple independent sources -- CNMH (historical memory), UCDP (international battle events), VERDATA/JEP (validated homicide estimates). Because each source has different geographic and temporal coverage, disagreements between layers are informative, not errors.
+
+**Peacebuilding & Implementation (P_):** State-led post-agreement programs. SIIPO/ART tracks implementation progress of the PDET development framework across 8 pillars (rural reform, illicit crops, infrastructure, etc.). APC tracks international aid flows. Note: most implementation data only exists from 2017 onward.
+
+**Justice & Dispute Resolution (J_):** Formal and alternative dispute resolution infrastructure. SLJ = community justice centers co-locating mediation, legal aid, and psychosocial services. Conciliadores = certified community mediators. URT = land restitution tribunal outcomes. These are the dissertation's primary outcome variables.
+
+**Socioeconomic & Structural (S_):** Municipal fiscal capacity, population, poverty, and land inequality from Colombia's DNP (national planning). The land Gini (IGAC) measures land concentration -- PDET municipalities average 0.73, well above the national threshold for high inequality.
+
+**Geographic & Territorial (G_):** Terrain ruggedness, nighttime light intensity (proxy for economic activity and state presence), forest/land cover, and the extent of recognized indigenous, Afro-Colombian, and peasant reserve territories. These variables are mostly structural (time-invariant).
+:::
+
+---
+
+## Variable Atlas
+
+::: {.panel-tabset}
+
+### Violence & Conflict
+
+::: {.callout-note appearance="minimal"}
+Six representative violence indicators. Use the layer switcher (top-right) to compare sources. Selective killings and UCDP events tend to cluster in the same subregions (Catatumbo, Bajo Cauca, Pacific coast) -- where they diverge, it reflects different counting methodologies rather than measurement error.
+:::
+
+```{r violence-map}
+#| fig-height: 10
+#| fig-width: 9
+#| out-width: "100%"
+if (!is.null(pdet_munis)) build_atlas_map("V", "C")
+```
+
+### Peacebuilding
+
+::: {.callout-note appearance="minimal"}
+Implementation progress and aid flows. SIIPO implementation index ranges 0-1 (0 = no implementation, 1 = complete). Investment figures are in Colombian pesos. APC aid is in USD. Note: all ART/SIIPO variables are post-2016 only -- municipalities appear unimplemented before the agreement by construction, not by absence.
+:::
+
+```{r peace-map}
+#| fig-height: 9
+#| fig-width: 9
+#| out-width: "100%"
+if (!is.null(pdet_munis)) build_atlas_map("P", "D")
+```
+
+### Justice & Dispute
+
+::: {.callout-note appearance="minimal"}
+Dispute resolution infrastructure. SLJ justice rooms (0 = none, 1-2 = present). Conciliadores are certified community mediators registered with the Ministry of Justice. High spatial concentration: justice infrastructure is far from uniformly distributed even within PDET municipalities.
+:::
+
+```{r justice-map}
+#| fig-height: 9
+#| fig-width: 9
+#| out-width: "100%"
+if (!is.null(pdet_munis)) build_atlas_map("J", "B")
+```
+
+### Socioeconomic
+
+::: {.callout-note appearance="minimal"}
+Structural socioeconomic conditions. Per-capita income and spending are in Colombian pesos (current). Land Gini (IGAC) ranges 0-1, where values above 0.7 indicate extreme land concentration -- the norm in PDET municipalities.
+:::
+
+```{r socio-map}
+#| fig-height: 9
+#| fig-width: 9
+#| out-width: "100%"
+if (!is.null(pdet_munis)) build_atlas_map("S", "A")
+```
+
+### Geographic
+
+::: {.callout-note appearance="minimal"}
+Structural geographic and territorial conditions. Terrain ruggedness (higher = harder to reach). Nightlight intensity is a proxy for economic activity and state presence: low values dominate across PDET territory. Indigenous/Afro/peasant territorial coverage reflects autonomous governance structures that mediate state presence.
+:::
+
+```{r geo-map}
+#| fig-height: 9
+#| fig-width: 9
+#| out-width: "100%"
+if (!is.null(pdet_munis)) build_atlas_map("G", "E")
+```
+
+:::
+
+---
+
+## Global Moran's I Summary Table
+
+::: {.callout-note appearance="minimal"}
+**How to read this table:** Moran's I ranges from -1 (perfect dispersion) to +1 (perfect clustering). Values near 0 mean the variable is spatially random. A positive, statistically significant I means nearby municipalities tend to have similar values -- which is expected for conflict and governance indicators that spread through contiguous territory. The test uses Queen contiguity weights restricted to the 170 PDET municipalities.
+:::
+
+```{r morans-table}
+if (!is.null(pdet_munis) && nrow(panel) > 0) {
+  # Limit to key variables to avoid memory overflow
+  morans_vars <- intersect(
+    c(unlist(ATLAS_VARS), grep("^J_", numeric_vars, value = TRUE)),
+    numeric_vars
+  )
+  morans_rows <- purrr::map_dfr(morans_vars, function(v) {
+    vals <- geo_cross[[v]]
+    if (sum(!is.na(vals)) < 30) return(NULL)
+    vals[is.na(vals)] <- 0
+    if (sd(vals) == 0) return(NULL)
+    mi <- compute_morans(vals)
+    category <- dplyr::case_when(
+      startsWith(v, "V_") ~ "Violence & Conflict",
+      startsWith(v, "P_") ~ "Peacebuilding",
+      startsWith(v, "J_") ~ "Justice & Dispute",
+      startsWith(v, "S_") ~ "Socioeconomic",
+      startsWith(v, "G_") ~ "Geographic",
+      TRUE ~ "Other"
+    )
+    tibble::tibble(
+      Variable    = v,
+      Category    = category,
+      Source      = sub(".*__", "", v),
+      `Moran's I` = round(mi["I"], 4),
+      `p-value`   = round(mi["p"], 5),
+      Significant = if (!is.na(mi["p"])) mi["p"] < 0.05 else NA
+    )
+  })
+
+  if (nrow(morans_rows) > 0) {
+    DT::datatable(
+      morans_rows |> dplyr::arrange(dplyr::desc(`Moran's I`)),
+      options  = list(pageLength = 25, dom = "ftp"),
+      rownames = FALSE,
+      filter   = "top",
+      caption  = "Global Moran's I — Queen contiguity, PDET municipalities (n=170), mean across years."
+    ) |>
+      DT::formatStyle(
+        "Significant",
+        backgroundColor = DT::styleEqual(
+          c(TRUE, FALSE, NA), c("#d4edda", "#f8d7da", "#f5f5f5")
+        )
+      )
+  }
+} else {
+  cat("> Panel or geometry not loaded.\n")
+}
+```
+
+---
+
+## Missingness Map
+
+```{r missingness-map}
+if (!is.null(pdet_munis) && nrow(panel) > 0) {
+  # Compute per-municipality observability from panel
+  na_mat <- is.na(panel[, numeric_vars])
+  miss_summary <- panel |>
+    dplyr::select(dane_code) |>
+    dplyr::mutate(n_obs = rowSums(!na_mat),
+                  pct_obs = round(100 * n_obs / length(numeric_vars), 1)) |>
+    dplyr::group_by(dane_code) |>
+    dplyr::summarise(pct_observed = round(mean(pct_obs), 1), .groups = "drop")
+
+  miss_map <- pdet_munis |>
+    dplyr::left_join(miss_summary, by = "dane_code")
+
+  pal_miss <- leaflet::colorNumeric("RdYlGn", domain = c(0, 100), na.color = "#ccc")
+
+  leaflet::leaflet(miss_map) |>
+    leaflet::addProviderTiles("CartoDB.Positron") |>
+    leaflet::setView(lng = -73.5, lat = 4.5, zoom = 6) |>
+    leaflet::addPolygons(
+      fillColor   = ~pal_miss(pct_observed),
+      fillOpacity = 0.7,
+      weight      = 0.5,
+      color       = "white",
+      popup       = ~paste0("<b>", muni_name, "</b> (", dane_code, ")<br>",
+                            "Observed: ", pct_observed, "%")
+    ) |>
+    leaflet::addLegend(pal = pal_miss, values = c(0, 100),
+                       title = "% non-NA", position = "bottomright")
+} else {
+  cat("> Panel or geometry not loaded.\n")
+}
+```
+
+::: {.callout-warning}
+**Systematic missingness in remote municipalities is a substantive finding.** High missingness in remote areas likely reflects state absence — one of the variables your dissertation theorizes about.
+:::

@@ -1,0 +1,347 @@
+---
+title: "Descriptive Statistics"
+subtitle: "Distribution · temporal coverage · outliers · zero-inflation per variable"
+date: last-modified
+---
+
+```{r setup, include=FALSE}
+source(here::here("R", "setup.R"))
+library(DT)
+
+# ── Identify data columns by category ──
+data_vars <- setdiff(names(panel), c("dane_code", "year"))
+numeric_vars <- data_vars[sapply(panel[data_vars], is.numeric)]
+
+vars_by_cat <- split(numeric_vars,
+                     sub("^([VPJSG])_.*", "\\1", numeric_vars))
+
+cat_labels <- c(
+  V = "Violence & Conflict",
+  P = "Peacebuilding & Implementation",
+  J = "Justice & Dispute Resolution",
+  S = "Socioeconomic & Structural",
+  G = "Geographic & Territorial"
+)
+
+# ── Compute full descriptive table for all numeric vars ──
+desc_table <- purrr::map_dfr(numeric_vars, function(v) {
+  x <- panel[[v]]
+  n_total  <- length(x)
+  n_na     <- sum(is.na(x))
+  n_obs    <- n_total - n_na
+  x_obs    <- x[!is.na(x)]
+
+  # Year coverage: which years have any non-NA values?
+  year_cov <- panel |>
+    dplyr::group_by(year) |>
+    dplyr::summarise(any_obs = any(!is.na(.data[[v]])), .groups = "drop") |>
+    dplyr::filter(any_obs) |>
+    dplyr::pull(year)
+
+  # Municipality coverage
+  muni_cov <- panel |>
+    dplyr::group_by(dane_code) |>
+    dplyr::summarise(any_obs = any(!is.na(.data[[v]])), .groups = "drop") |>
+    dplyr::filter(any_obs) |>
+    nrow()
+
+  # Static check: same value across years within each muni?
+  is_static <- panel |>
+    dplyr::filter(!is.na(.data[[v]])) |>
+    dplyr::group_by(dane_code) |>
+    dplyr::summarise(n_unique = dplyr::n_distinct(.data[[v]]), .groups = "drop") |>
+    dplyr::pull(n_unique) |>
+    max(na.rm = TRUE) == 1
+
+  tibble::tibble(
+    variable      = v,
+    category      = sub("^([VPJSG])_.*", "\\1", v),
+    source        = sub(".*__", "", v),
+    n_obs         = n_obs,
+    n_na          = n_na,
+    pct_na        = round(100 * n_na / n_total, 1),
+    n_zero        = if (n_obs > 0) sum(x_obs == 0) else NA_integer_,
+    pct_zero      = if (n_obs > 0) round(100 * sum(x_obs == 0) / n_obs, 1) else NA_real_,
+    mean          = if (n_obs > 0) round(mean(x_obs), 3) else NA_real_,
+    sd            = if (n_obs > 0) round(sd(x_obs), 3) else NA_real_,
+    min           = if (n_obs > 0) round(min(x_obs), 3) else NA_real_,
+    p25           = if (n_obs > 0) round(quantile(x_obs, 0.25), 3) else NA_real_,
+    median        = if (n_obs > 0) round(median(x_obs), 3) else NA_real_,
+    p75           = if (n_obs > 0) round(quantile(x_obs, 0.75), 3) else NA_real_,
+    max           = if (n_obs > 0) round(max(x_obs), 3) else NA_real_,
+    cv            = if (n_obs > 0 && mean(x_obs) != 0) round(sd(x_obs) / abs(mean(x_obs)), 2) else NA_real_,
+    skewness      = if (n_obs >= 3) round(moments::skewness(x_obs), 2) else NA_real_,
+    n_munis       = muni_cov,
+    year_min      = if (length(year_cov) > 0) min(year_cov) else NA_integer_,
+    year_max      = if (length(year_cov) > 0) max(year_cov) else NA_integer_,
+    n_years       = length(year_cov),
+    is_static     = is_static
+  )
+})
+
+# ── Helper: render one category section ──
+render_category <- function(cat_key) {
+  cat_vars <- vars_by_cat[[cat_key]]
+  if (is.null(cat_vars) || length(cat_vars) == 0) {
+    cat("> No variables in this category.\n")
+    return(invisible(NULL))
+  }
+
+  cat_desc <- desc_table |> dplyr::filter(category == cat_key)
+  clean_name <- function(v) gsub("__.*", "", gsub("^[VPJSG]_", "", v))
+
+  # ── Summary table ──
+  cat("\n\n#### Summary Statistics\n\n")
+  tbl <- cat_desc |>
+    dplyr::mutate(name = clean_name(variable)) |>
+    dplyr::select(name, source, n_obs, pct_na, pct_zero,
+                  mean, sd, min, median, max, cv, skewness,
+                  n_munis, year_min, year_max, is_static)
+  print(htmltools::tagList(
+    DT::datatable(tbl, rownames = FALSE,
+                  options = list(pageLength = 20, dom = "ft", scrollX = TRUE),
+                  caption = paste0(cat_labels[cat_key], " — ", nrow(tbl), " variables"))
+  ))
+
+  # ── Flags: issues to pay attention to ──
+  cat("\n\n#### Diagnostic Flags\n\n")
+
+  high_zero <- cat_desc |> dplyr::filter(pct_zero > 50)
+  high_na   <- cat_desc |> dplyr::filter(pct_na > 50)
+  high_skew <- cat_desc |> dplyr::filter(abs(skewness) > 3)
+  static    <- cat_desc |> dplyr::filter(is_static)
+  low_munis <- cat_desc |> dplyr::filter(n_munis < 100)
+  short_yrs <- cat_desc |> dplyr::filter(n_years < 10)
+
+  if (nrow(high_zero) > 0) {
+    cat(sprintf("- **Zero-inflated (>50%% zeros):** %s\n",
+                paste(clean_name(high_zero$variable), collapse = ", ")))
+  }
+  if (nrow(high_na) > 0) {
+    cat(sprintf("- **High missingness (>50%% NA):** %s\n",
+                paste(clean_name(high_na$variable), collapse = ", ")))
+  }
+  if (nrow(high_skew) > 0) {
+    cat(sprintf("- **Highly skewed (|skew| > 3):** %s — consider log transform\n",
+                paste(clean_name(high_skew$variable), collapse = ", ")))
+  }
+  if (nrow(static) > 0) {
+    cat(sprintf("- **Static (no within-muni variation):** %s\n",
+                paste(clean_name(static$variable), collapse = ", ")))
+  }
+  if (nrow(low_munis) > 0) {
+    cat(sprintf("- **Low coverage (<100 munis):** %s\n",
+                paste(clean_name(low_munis$variable), collapse = ", ")))
+  }
+  if (nrow(short_yrs) > 0) {
+    cat(sprintf("- **Short time span (<10 years):** %s\n",
+                paste(clean_name(short_yrs$variable), collapse = ", ")))
+  }
+  if (nrow(high_zero) + nrow(high_na) + nrow(high_skew) +
+      nrow(static) + nrow(low_munis) + nrow(short_yrs) == 0) {
+    cat("- No flags for this category.\n")
+  }
+
+  # ── Distribution histograms (small multiples) ──
+  cat("\n\n#### Distributions\n\n")
+  plot_data <- panel |>
+    dplyr::select(dplyr::all_of(cat_vars)) |>
+    tidyr::pivot_longer(everything(), names_to = "variable", values_to = "value") |>
+    dplyr::filter(!is.na(value)) |>
+    dplyr::mutate(name = clean_name(variable))
+
+  cat_colors <- c(V = "#b2182b", P = "#1b7837", J = "#2166ac",
+                   S = "#8c510a", G = "#542788")
+  fill_col <- cat_colors[cat_key]
+
+  if (nrow(plot_data) > 0) {
+    p <- ggplot(plot_data, aes(x = value)) +
+      geom_histogram(bins = 30, fill = fill_col, alpha = 0.7) +
+      facet_wrap(~name, scales = "free", ncol = 3) +
+      theme_minimal(base_size = 9) +
+      theme(
+        strip.text = element_text(face = "bold", size = 7),
+        axis.text = element_text(size = 6)
+      ) +
+      labs(x = NULL, y = "Count")
+    print(p)
+  }
+
+  # ── Temporal trends (median across munis per year) ──
+  cat("\n\n#### Temporal Trends (median across municipalities)\n\n")
+  trend_data <- panel |>
+    dplyr::select(year, dplyr::all_of(cat_vars)) |>
+    tidyr::pivot_longer(-year, names_to = "variable", values_to = "value") |>
+    dplyr::filter(!is.na(value)) |>
+    dplyr::group_by(year, variable) |>
+    dplyr::summarise(median_val = median(value, na.rm = TRUE),
+                     n_obs = sum(!is.na(value)),
+                     .groups = "drop") |>
+    dplyr::mutate(name = clean_name(variable))
+
+  if (nrow(trend_data) > 0) {
+    p2 <- ggplot(trend_data, aes(x = year, y = median_val)) +
+      geom_line(color = "#333", linewidth = 0.5) +
+      geom_point(aes(size = n_obs), color = "#2166ac", alpha = 0.6) +
+      scale_size_continuous(range = c(0.5, 2), guide = "none") +
+      facet_wrap(~name, scales = "free_y", ncol = 3) +
+      theme_minimal(base_size = 9) +
+      theme(
+        strip.text = element_text(face = "bold", size = 7),
+        axis.text = element_text(size = 6),
+        axis.text.x = element_text(angle = 45, hjust = 1)
+      ) +
+      labs(x = "Year", y = "Median value")
+    print(p2)
+  }
+}
+```
+
+## Overview
+
+This page provides variable-level diagnostics for all `r nrow(desc_table)` numeric variables in the PDET panel (`r length(unique(panel$dane_code))` municipalities, `r min(panel$year)`--`r max(panel$year)`).
+
+::: {.callout-note collapse="true"}
+## How to read the diagnostic flags
+
+Each category tab shows four things:
+
+1. **Summary statistics table** -- searchable table with N, % missing, % zero, mean, median, SD, skewness, municipality coverage, and year range. The `is_static` column marks variables with zero within-municipality variation across years (these cannot be used in fixed-effects models).
+
+2. **Diagnostic flags** -- automatic alerts for:
+   - *Zero-inflated (>50% zeros):* Most observations are zero; the variable measures rare events. Consider a binary indicator or hurdle model.
+   - *High missingness (>50% NA):* The variable covers less than half the panel. Missingness is likely MAR (conditional on year or department) -- see the Data Audit page.
+   - *Highly skewed (|skew| > 3):* Distribution has a very long right tail. Log(1 + x) transformation strongly recommended before regression.
+   - *Static (no within-muni variation):* Value is identical across all years for each municipality. Cannot be used as outcome in panel FE models; useful only as cross-sectional moderator.
+   - *Low coverage (<100 munis):* Fewer than 100 of 170 PDET municipalities have any data.
+   - *Short time span (<10 years):* Limited temporal coverage.
+
+3. **Distributions** -- histograms for each variable. Zero-inflated variables will show a large spike at zero. Skewed variables will have long right tails.
+
+4. **Temporal trends** -- median value across municipalities by year. Dot size = number of municipalities with data that year. Flat lines = static variables. The 2016 vertical line (where shown) marks the Peace Agreement.
+:::
+
+::: {.callout-warning collapse="true"}
+## Variables flagged for exclusion or recoding
+
+Based on diagnostics, the following variables should be **dropped or recoded** before modeling:
+
+- `P_investment_total_cop__art`, `P_n_projects_completed__art`, `P_n_pilars_covered__art` -- all zeros, failed extraction
+- `P_impl_ceasefire_disarmament__art`, `P_impl_communication__art` -- >99% NA, near-zero/constant variance
+- `S_n_cadastral_managers__igac` -- constant = 1, zero variance
+- `G_land_cover_share__prio` -- near-constant (mean = 0.97), negligible variation
+- `J_n_restitution_sentences__urt` -- constant = 1 for all observed rows, likely misspecified; verify source
+- `V_homicides_q025__jep`, `V_homicides_q975__jep` -- redundant with mean (r ~ 1)
+- `S_gdp_percapita_constant__dnp` -- only 5 years (2005-2009)
+- `S_poverty_headcount__dnp` -- single year (2005), use as baseline control only
+
+All other variables with >50% NA or high skew are usable with appropriate transformation and available-case estimation.
+:::
+
+```{r overview-table}
+overview <- desc_table |>
+  dplyr::group_by(Category = cat_labels[category]) |>
+  dplyr::summarise(
+    `N vars`         = dplyr::n(),
+    `Median % NA`    = round(median(pct_na), 1),
+    `Median % zero`  = round(median(pct_zero, na.rm = TRUE), 1),
+    `N static`       = sum(is_static, na.rm = TRUE),
+    `N high-skew`    = sum(abs(skewness) > 3, na.rm = TRUE),
+    `Year range`     = paste0(min(year_min, na.rm = TRUE), "–", max(year_max, na.rm = TRUE)),
+    .groups = "drop"
+  )
+
+DT::datatable(overview, rownames = FALSE,
+              options = list(dom = "t", pageLength = 10),
+              caption = "Category-level summary")
+```
+
+---
+
+::: {.panel-tabset}
+
+### Violence & Conflict
+
+```{r desc-violence}
+#| results: asis
+#| fig-height: 10
+render_category("V")
+```
+
+### Peacebuilding
+
+```{r desc-peace}
+#| results: asis
+#| fig-height: 10
+render_category("P")
+```
+
+### Justice & Dispute
+
+```{r desc-justice}
+#| results: asis
+#| fig-height: 8
+render_category("J")
+```
+
+### Socioeconomic
+
+```{r desc-socio}
+#| results: asis
+#| fig-height: 10
+render_category("S")
+```
+
+### Geographic
+
+```{r desc-geo}
+#| results: asis
+#| fig-height: 8
+render_category("G")
+```
+
+:::
+
+---
+
+## Cross-Category Correlation
+
+```{r correlation-heatmap}
+#| fig-height: 8
+
+# Pick one representative variable per source for a manageable heatmap
+rep_vars <- desc_table |>
+  dplyr::group_by(source) |>
+  dplyr::slice_max(n_obs, n = 1, with_ties = FALSE) |>
+  dplyr::pull(variable)
+
+if (length(rep_vars) >= 3) {
+  cor_data <- panel |>
+    dplyr::select(dplyr::all_of(rep_vars))
+
+  cor_mat <- cor(cor_data, use = "pairwise.complete.obs", method = "spearman")
+
+  # Clean names for display
+  rownames(cor_mat) <- gsub("__.*", "", gsub("^[VPJSG]_", "", rownames(cor_mat)))
+  colnames(cor_mat) <- gsub("__.*", "", gsub("^[VPJSG]_", "", colnames(cor_mat)))
+
+  cor_long <- as.data.frame(as.table(cor_mat)) |>
+    dplyr::rename(var1 = Var1, var2 = Var2, rho = Freq)
+
+  ggplot(cor_long, aes(x = var1, y = var2, fill = rho)) +
+    geom_tile(color = "white") +
+    geom_text(aes(label = ifelse(abs(rho) > 0.3, sprintf("%.2f", rho), "")),
+              size = 2) +
+    scale_fill_gradient2(low = "#2166ac", mid = "white", high = "#b2182b",
+                          midpoint = 0, limits = c(-1, 1),
+                          name = "Spearman rho") +
+    theme_minimal(base_size = 9) +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 7),
+      axis.text.y = element_text(size = 7),
+      panel.grid = element_blank()
+    ) +
+    labs(title = "Cross-source Spearman correlations (one variable per source)",
+         x = NULL, y = NULL)
+}
+```

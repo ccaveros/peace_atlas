@@ -1,0 +1,46 @@
+/*-- scss:defaults --*/
+
+// Palette — muted academic blues + Colombia flag gold accent
+$primary:         #1a2e44;
+$secondary:       #4a7c9e;
+$accent:          #c8923a;     // warm gold
+$pdet-highlight:  #2166ac;    // PDET choropleth anchor color
+$body-bg:         #fafafa;
+$body-color:      #1c1c1c;
+$code-bg:         #f4f4f4;
+$link-color:      $secondary;
+$font-family-sans-serif: "IBM Plex Sans", system-ui, sans-serif;
+$font-family-monospace:  "IBM Plex Mono", monospace;
+$headings-font-weight:   600;
+
+/*-- scss:rules --*/
+
+// Subtle card style for map containers
+.map-container {
+  border: 1px solid #dde3ea;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 1.4rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+// Dimension badges
+.badge-neg   { background: #b2182b; color: #fff; padding: 2px 7px; border-radius: 4px; font-size: 0.75rem; }
+.badge-inst  { background: #2166ac; color: #fff; padding: 2px 7px; border-radius: 4px; font-size: 0.75rem; }
+.badge-pos   { background: #1b7837; color: #fff; padding: 2px 7px; border-radius: 4px; font-size: 0.75rem; }
+.badge-risk  { background: #762a83; color: #fff; padding: 2px 7px; border-radius: 4px; font-size: 0.75rem; }
+.badge-ctrl  { background: #888;    color: #fff; padding: 2px 7px; border-radius: 4px; font-size: 0.75rem; }
+
+// Callout for audit warnings
+.missing-warn {
+  border-left: 4px solid $accent;
+  background: #fdf3e3;
+  padding: 0.6rem 1rem;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 1rem;
+}
+
+// Suppress Quarto's default TOC top padding on map pages
+.panel-tabset > .tab-content {
+  padding-top: 0.5rem;
+}

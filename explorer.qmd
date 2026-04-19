@@ -1,0 +1,505 @@
+---
+title: "Variable Explorer"
+subtitle: "Interactive choropleth maps · Moran's I · LISA clusters"
+date: last-modified
+---
+
+```{r setup, include=FALSE}
+source(here::here("R", "setup.R"))
+library(DT)
+library(spdep)
+
+# ── Which variables to display on the website ─────────────────────────────────
+# Toggle TRUE/FALSE to show/hide variables in the explorer.
+# Edit this list to control what appears in the dropdown.
+
+EXPLORER_VARS <- c(
+  # ── V: Violence & Conflict ──
+  # Set TRUE to show on website, FALSE to hide. Toggle as needed.
+  "V_selective_killing_cases__cnmh"        = TRUE,
+  "V_massacre_cases__cnmh"                 = TRUE,
+  "V_forced_disappearance_cases__cnmh"     = TRUE,
+  "V_kidnapping_cases__cnmh"               = TRUE,
+  "V_sexual_violence_cases__cnmh"          = TRUE,
+  "V_landmine_cases__cnmh"                 = TRUE,
+  "V_child_recruitment_cases__cnmh"        = TRUE,
+  "V_conflict_events_all__ucdp"            = TRUE,
+  "V_battle_deaths_all__ucdp"              = TRUE,
+  "V_homicides_mean__jep"                  = TRUE,
+  "V_false_positive_cases__cerac"          = TRUE,
+  "V_extrajudicial_executions__cerac"      = TRUE,
+  "V_territorial_control_status__aponte"   = TRUE,
+  "V_coca_cultivation__aponte"             = TRUE,
+  "V_criminal_pact__daly"                  = TRUE,
+  "V_political_violence_index__daly"       = TRUE,
+
+  # ── P: Peacebuilding & Implementation ──
+  "P_impl_mean_all_pilars__art"            = TRUE,
+  "P_impl_education__art"                  = TRUE,
+  "P_impl_reconciliation__art"             = TRUE,
+  "P_impl_security_guarantees__art"        = TRUE,
+  "P_pilar1_investment_cop__art"           = TRUE,
+  "P_n_projects__art"                      = TRUE,
+  "P_investment_total_cop__art"            = TRUE,
+  "P_aid_usd__apc"                         = TRUE,
+  "P_n_interventions__apc"                 = TRUE,
+  "P_n_initiatives_total__pdet"            = TRUE,
+  "P_n_memory_initiatives__cnmh"           = TRUE,
+
+  # ── J: Justice & Dispute Resolution ──
+  "J_n_justice_rooms__slj"                 = TRUE,
+  "J_slj_present__slj"                     = TRUE,
+  "J_n_cases_processed__casjust"           = TRUE,
+  "J_n_conciliadores__concil"              = TRUE,
+  "J_n_conciliation_requests__concil"      = TRUE,
+  "J_n_restitution_sentences__urt"         = TRUE,
+
+  # ── S: Socioeconomic ──
+  "S_pop_total__dnp"                       = TRUE,
+  "S_gdp_percapita_constant__dnp"          = TRUE,
+  "S_nbi__dnp"                             = TRUE,
+  "S_ipm__dnp"                             = TRUE,
+  "S_poverty_headcount__dnp"               = TRUE,
+  "S_gini_land__igac"                      = TRUE,
+  "S_income_total_pc__dnp"                 = TRUE,
+  "S_tax_income_pc__dnp"                   = TRUE,
+  "S_ethnic_minority_share__dnp"           = TRUE,
+
+  # ── G: Geographic ──
+  "G_terrain_ruggedness__prio"             = TRUE,
+  "G_nightlight__prio"                     = TRUE,
+  "G_forest_share__prio"                   = TRUE,
+  "G_indigenous_pct_covered__ant"          = TRUE,
+  "G_afro_pct_covered__ant"               = TRUE,
+  "G_peasant_pct_covered__ant"             = TRUE
+)
+
+# Filter to enabled variables that exist in the panel
+enabled_vars <- names(EXPLORER_VARS)[EXPLORER_VARS]
+enabled_vars <- intersect(enabled_vars, names(panel))
+
+# ── Category definitions ──
+CAT_INFO <- list(
+  V = list(label = "Violence & Conflict",          color = "#b2182b", palette = "YlOrRd"),
+  P = list(label = "Peacebuilding & Implementation", color = "#1b7837", palette = "YlGn"),
+  J = list(label = "Justice & Dispute Resolution",  color = "#2166ac", palette = "Blues"),
+  S = list(label = "Socioeconomic & Structural",    color = "#8c510a", palette = "YlOrBr"),
+  G = list(label = "Geographic & Territorial",      color = "#542788", palette = "PuBuGn")
+)
+
+# Split enabled vars by category prefix
+vars_by_cat <- split(enabled_vars,
+                     sub("^([VPJSG])_.*", "\\1", enabled_vars))
+
+# ── Helper: build ONE static faceted ggplot map per category ──
+# Replaces the prior multi-layer leaflet (which embedded full PDET GeoJSON
+# per variable and overflowed V8's ~512MB string buffer during render).
+build_cat_map <- function(cat_vars, viridis_option = "C") {
+  if (length(cat_vars) == 0) return(NULL)
+
+  default_year <- max(panel$year)
+  numeric_vars <- cat_vars[sapply(panel[cat_vars], is.numeric)]
+  if (length(numeric_vars) == 0) return(NULL)
+
+  cross <- panel |>
+    dplyr::filter(year == default_year) |>
+    dplyr::select(dane_code, dplyr::all_of(numeric_vars))
+
+  map_sf <- pdet_munis |>
+    dplyr::left_join(cross, by = "dane_code")
+
+  # Drop variables that are all-NA at the chosen year
+  keep_vars <- numeric_vars[vapply(numeric_vars,
+                                   function(v) any(!is.na(map_sf[[v]])),
+                                   logical(1))]
+  if (length(keep_vars) == 0) return(NULL)
+
+  # Long-format sf: one row per (muni × variable)
+  plot_list <- lapply(keep_vars, function(v) {
+    label <- gsub("__.*", "", gsub("^[VPJSG]_", "", v))
+    map_sf |>
+      dplyr::transmute(
+        dane_code,
+        muni_name,
+        value     = .data[[v]],
+        var_label = label
+      )
+  })
+  plot_sf <- dplyr::bind_rows(plot_list) |> sf::st_as_sf()
+
+  # log1p transform for display (handles skew); preserve sign via pmax(0)
+  plot_sf <- plot_sf |>
+    dplyr::mutate(value_display = log1p(pmax(value, 0, na.rm = TRUE)))
+
+  ncols <- min(3L, length(keep_vars))
+
+  ggplot2::ggplot(plot_sf) +
+    ggplot2::geom_sf(ggplot2::aes(fill = value_display),
+                     color = "white", linewidth = 0.15) +
+    ggplot2::scale_fill_viridis_c(
+      option   = viridis_option,
+      na.value = "#e0e0e0",
+      name     = "log(1+x)",
+      guide    = ggplot2::guide_colorbar(barwidth = 6, barheight = 0.5,
+                                         title.position = "top")
+    ) +
+    ggplot2::facet_wrap(~var_label, ncol = ncols) +
+    ggplot2::theme_void(base_size = 9) +
+    ggplot2::theme(
+      legend.position  = "bottom",
+      strip.text       = ggplot2::element_text(size = 7, face = "bold",
+                                                margin = ggplot2::margin(b = 3)),
+      plot.margin      = ggplot2::margin(4, 4, 4, 4)
+    ) +
+    ggplot2::labs(caption = paste0("Year: ", default_year))
+}
+```
+
+
+## Interactive Choropleth Maps
+
+::: {.callout-tip}
+**How to use this explorer**
+
+1. Choose a **category tab** (Violence, Peacebuilding, Justice, Socioeconomic, Geographic, or Year Comparison).
+2. Each tab shows all enabled variables in that category as a **faceted map** (one small-multiple panel per variable).
+3. Gray polygons = no data available for that variable in that municipality.
+4. Maps show the **most recent year** with data for each variable. The Variable Atlas shows the all-years mean instead.
+5. Values are shown on a log(1+x) scale to handle right-skewed count variables.
+
+The Year Comparison tab shows UCDP conflict events at five-year intervals to visualize the conflict trajectory from 2005 to 2024.
+:::
+
+---
+
+::: {.panel-tabset}
+
+### Violence & Conflict
+
+```{r map-violence}
+#| fig-height: 10
+#| fig-width: 9
+#| out-width: "100%"
+if (!is.null(pdet_munis) && nrow(panel) > 0 && "V" %in% names(vars_by_cat)) {
+  build_cat_map(vars_by_cat[["V"]], "C")
+}
+```
+
+### Peacebuilding
+
+```{r map-peace}
+#| fig-height: 9
+#| fig-width: 9
+#| out-width: "100%"
+if (!is.null(pdet_munis) && nrow(panel) > 0 && "P" %in% names(vars_by_cat)) {
+  build_cat_map(vars_by_cat[["P"]], "D")
+}
+```
+
+### Justice & Dispute
+
+```{r map-justice}
+#| fig-height: 9
+#| fig-width: 9
+#| out-width: "100%"
+if (!is.null(pdet_munis) && nrow(panel) > 0 && "J" %in% names(vars_by_cat)) {
+  build_cat_map(vars_by_cat[["J"]], "B")
+}
+```
+
+### Socioeconomic
+
+```{r map-socio}
+#| fig-height: 9
+#| fig-width: 9
+#| out-width: "100%"
+if (!is.null(pdet_munis) && nrow(panel) > 0 && "S" %in% names(vars_by_cat)) {
+  build_cat_map(vars_by_cat[["S"]], "A")
+}
+```
+
+### Geographic
+
+```{r map-geo}
+#| fig-height: 9
+#| fig-width: 9
+#| out-width: "100%"
+if (!is.null(pdet_munis) && nrow(panel) > 0 && "G" %in% names(vars_by_cat)) {
+  build_cat_map(vars_by_cat[["G"]], "E")
+}
+```
+
+### Year Comparison
+
+```{r year-panels}
+#| fig-height: 6
+
+if (!is.null(pdet_munis) && "V_conflict_events_all__ucdp" %in% names(panel)) {
+  key_years <- c(2005, 2010, 2015, 2020, 2024)
+  key_var <- "V_conflict_events_all__ucdp"
+
+  year_data <- panel |>
+    dplyr::filter(year %in% key_years) |>
+    dplyr::select(dane_code, year, value = all_of(key_var))
+
+  map_data <- pdet_munis |>
+    dplyr::left_join(year_data, by = "dane_code")
+
+  ggplot(map_data) +
+    geom_sf(aes(fill = value), color = "white", size = 0.1) +
+    scale_fill_viridis_c(option = "inferno", na.value = "#d9d9d9",
+                          name = gsub("__.*", "", gsub("^V_", "", key_var))) +
+    facet_wrap(~year, nrow = 1) +
+    theme_minimal() +
+    theme(
+      axis.text = element_blank(),
+      axis.ticks = element_blank(),
+      panel.grid = element_blank(),
+      legend.position = "bottom"
+    ) +
+    labs(title = paste("UCDP Conflict Events:", paste(key_years, collapse = ", ")))
+}
+```
+
+:::
+
+---
+
+## Spatial Autocorrelation: Justice & Dispute Variables {.tabset}
+
+Global Moran's I and LISA cluster maps for all **J_** (Justice & Dispute Resolution) variables. These diagnostics assess whether dispute resolution capacity clusters spatially --- a prerequisite for constructing a latent dispute resolution variable.
+
+::: {.panel-tabset}
+
+### Global Moran's I
+
+```{r moran-global}
+if (!is.null(pdet_munis) && nrow(panel) > 0) {
+
+  # Build spatial weights (Queen contiguity on PDET polygons)
+  pdet_sp <- sf::as_Spatial(pdet_munis)
+  nb <- spdep::poly2nb(pdet_sp, queen = TRUE)
+  lw <- spdep::nb2listw(nb, style = "W", zero.policy = TRUE)
+
+  # Get J_ variables + key V_ and P_ variables for comparison
+  dispute_vars <- grep("^J_", names(panel), value = TRUE)
+  comparison_vars <- c(
+    "V_selective_killing_cases__cnmh",
+    "V_conflict_events_all__ucdp",
+    "V_homicides_mean__jep",
+    "P_impl_mean_all_pilars__art",
+    "P_aid_usd__apc",
+    "S_nbi__dnp"
+  )
+  test_vars <- intersect(c(dispute_vars, comparison_vars), names(panel))
+
+  # Cross-section: aggregate across all years (mean per municipality)
+  cross_mean <- panel |>
+    dplyr::group_by(dane_code) |>
+    dplyr::summarise(dplyr::across(dplyr::all_of(test_vars),
+                                    ~ mean(.x, na.rm = TRUE)),
+                     .groups = "drop")
+
+  # Join to geometry (preserve order)
+  geo_cross <- pdet_munis |>
+    dplyr::left_join(cross_mean, by = "dane_code")
+
+  # Compute Moran's I for each variable
+  moran_results <- purrr::map_dfr(test_vars, function(v) {
+    x <- geo_cross[[v]]
+    if (sum(!is.na(x)) < 30) {
+      return(tibble::tibble(variable = v, morans_I = NA_real_,
+                            p_value = NA_real_, z_score = NA_real_))
+    }
+    x[is.na(x)] <- mean(x, na.rm = TRUE)
+    if (sd(x, na.rm = TRUE) == 0 || is.na(sd(x, na.rm = TRUE))) {
+      return(tibble::tibble(variable = v, morans_I = NA_real_,
+                            p_value = NA_real_, z_score = NA_real_))
+    }
+
+    mt <- tryCatch(
+      spdep::moran.test(x, lw, zero.policy = TRUE),
+      error = function(e) NULL
+    )
+    if (is.null(mt)) {
+      return(tibble::tibble(variable = v, morans_I = NA_real_,
+                            p_value = NA_real_, z_score = NA_real_))
+    }
+    tibble::tibble(
+      variable = v,
+      morans_I = round(mt$estimate["Moran I statistic"], 4),
+      p_value  = round(mt$p.value, 6),
+      z_score  = round(mt$statistic, 2)
+    )
+  }) |>
+    dplyr::mutate(
+      category = dplyr::case_when(
+        stringr::str_starts(variable, "J_") ~ "Justice & Dispute",
+        stringr::str_starts(variable, "V_") ~ "Violence (comparison)",
+        stringr::str_starts(variable, "P_") ~ "Peace (comparison)",
+        stringr::str_starts(variable, "S_") ~ "Socioeconomic (comparison)",
+        TRUE ~ "Other"
+      ),
+      significant = ifelse(p_value < 0.05, "***", "")
+    ) |>
+    dplyr::arrange(dplyr::desc(morans_I))
+
+  DT::datatable(
+    moran_results,
+    rownames = FALSE,
+    options  = list(pageLength = 20, dom = "ft"),
+    caption  = "Global Moran's I — Queen contiguity, W-standardized. Mean across all years."
+  ) |>
+    DT::formatStyle(
+      "category",
+      color = DT::styleEqual(
+        c("Justice & Dispute", "Violence (comparison)", "Peace (comparison)", "Socioeconomic (comparison)"),
+        c("#2166ac", "#b2182b", "#1b7837", "#8c510a")
+      ),
+      fontWeight = "bold"
+    ) |>
+    DT::formatStyle(
+      "significant",
+      color = "red",
+      fontWeight = "bold"
+    )
+}
+```
+
+### LISA Cluster Maps
+
+```{r lisa-maps}
+#| fig-height: 10
+#| fig-width: 9
+#| out-width: "100%"
+
+if (!is.null(pdet_munis) && nrow(panel) > 0) {
+
+  # LISA for each J_ variable — build a single long-format sf and facet_wrap
+  # (avoids patchwork-over-many-ggplots and keeps HTML small).
+  lisa_vars <- intersect(dispute_vars, names(geo_cross))
+
+  cluster_levels <- c("High-High", "Low-Low", "High-Low",
+                      "Low-High", "Not significant")
+  cluster_colors <- c(
+    "High-High"       = "#d7191c",
+    "Low-Low"         = "#2c7bb6",
+    "High-Low"        = "#fdae61",
+    "Low-High"        = "#abd9e9",
+    "Not significant" = "#e0e0e0"
+  )
+
+  if (length(lisa_vars) > 0) {
+    panels <- purrr::map(lisa_vars, function(v) {
+      x <- geo_cross[[v]]
+      if (sum(!is.na(x)) < 20) return(NULL)
+      x[is.na(x)] <- mean(x, na.rm = TRUE)
+      if (sd(x, na.rm = TRUE) == 0 || is.na(sd(x, na.rm = TRUE))) return(NULL)
+
+      lm <- tryCatch(
+        spdep::localmoran(x, lw, zero.policy = TRUE),
+        error = function(e) NULL
+      )
+      if (is.null(lm)) return(NULL)
+
+      xz <- scale(x)[, 1]
+      if (any(!is.finite(xz))) return(NULL)
+      lag_xz <- spdep::lag.listw(lw, xz, zero.policy = TRUE)
+      p_local <- lm[, "Pr(z != E(Ii))"]
+
+      clean_name <- gsub("^J_", "", gsub("__.*", "", v))
+      mi_val <- moran_results$morans_I[moran_results$variable == v]
+      panel_label <- sprintf("%s (I=%.3f)", clean_name,
+                             if (length(mi_val)) mi_val else NA_real_)
+
+      geo_cross |>
+        dplyr::transmute(
+          dane_code,
+          var_label = panel_label,
+          cluster   = factor(dplyr::case_when(
+            p_local > 0.05       ~ "Not significant",
+            xz > 0 & lag_xz > 0  ~ "High-High",
+            xz < 0 & lag_xz < 0  ~ "Low-Low",
+            xz > 0 & lag_xz < 0  ~ "High-Low",
+            xz < 0 & lag_xz > 0  ~ "Low-High",
+            TRUE                  ~ "Not significant"
+          ), levels = cluster_levels)
+        )
+    })
+
+    panels <- purrr::compact(panels)
+    if (length(panels) > 0) {
+      lisa_sf <- dplyr::bind_rows(panels) |> sf::st_as_sf()
+      ncols <- min(3L, length(unique(lisa_sf$var_label)))
+
+      ggplot2::ggplot(lisa_sf) +
+        ggplot2::geom_sf(ggplot2::aes(fill = cluster),
+                         color = "white", linewidth = 0.15) +
+        ggplot2::scale_fill_manual(values = cluster_colors,
+                                   name   = "LISA Cluster",
+                                   drop   = FALSE) +
+        ggplot2::facet_wrap(~var_label, ncol = ncols) +
+        ggplot2::theme_void(base_size = 9) +
+        ggplot2::theme(
+          legend.position = "bottom",
+          strip.text      = ggplot2::element_text(size = 7, face = "bold",
+                                                  margin = ggplot2::margin(b = 3)),
+          plot.margin     = ggplot2::margin(4, 4, 4, 4)
+        )
+    } else {
+      cat("> No J_ variables with sufficient data for LISA.\n")
+    }
+  }
+}
+```
+
+### Moran Scatterplots
+
+```{r moran-scatter}
+#| fig-height: 8
+
+if (!is.null(pdet_munis) && nrow(panel) > 0) {
+
+  scatter_plots <- purrr::map(lisa_vars, function(v) {
+    x <- geo_cross[[v]]
+    if (sum(!is.na(x)) < 20) return(NULL)
+    x[is.na(x)] <- mean(x, na.rm = TRUE)
+    if (sd(x, na.rm = TRUE) == 0 || is.na(sd(x, na.rm = TRUE))) return(NULL)
+
+    xz <- scale(x)[, 1]
+    if (any(!is.finite(xz))) return(NULL)
+    lag_xz <- spdep::lag.listw(lw, xz, zero.policy = TRUE)
+
+    clean_name <- gsub("^J_", "", gsub("__.*", "", v))
+
+    df <- data.frame(x = xz, lag_x = lag_xz)
+    ggplot(df, aes(x = x, y = lag_x)) +
+      geom_point(alpha = 0.6, size = 2, color = "#2166ac") +
+      geom_smooth(method = "lm", se = FALSE, color = "#b2182b", linewidth = 1) +
+      geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+      geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+      theme_minimal() +
+      labs(title = clean_name,
+           x = "Standardized value",
+           y = "Spatial lag") +
+      annotate("text", x = Inf, y = Inf, hjust = 1.1, vjust = 1.5,
+               label = sprintf("I = %.3f",
+                                moran_results$morans_I[moran_results$variable == v]),
+               size = 4, color = "#b2182b")
+  })
+
+  scatter_plots <- purrr::compact(scatter_plots)
+  if (length(scatter_plots) > 0) {
+    patchwork::wrap_plots(scatter_plots, ncol = 2)
+  }
+}
+```
+
+:::
+
+---
+
+::: {.callout-note}
+## Research context
+The spatial diagnostics above test whether dispute resolution infrastructure (justice rooms, conciliators, restitution sentences) clusters geographically. **Positive spatial autocorrelation** (high Moran's I, significant High-High and Low-Low clusters) would support constructing a latent dispute resolution capacity variable using spatial factor analysis methods.
+:::

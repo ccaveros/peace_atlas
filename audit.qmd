@@ -1,0 +1,290 @@
+---
+title: "Data Audit"
+subtitle: "Completeness · Missingness · MAUP decisions · Crosswalk diagnostics"
+date: last-modified
+---
+
+```{r setup, include=FALSE}
+source(here::here("R", "setup.R"))
+library(DT)
+
+# Load completeness report from pipeline
+completeness_path <- file.path(OUTPUT_DIR, "completeness_final.csv")
+if (file.exists(completeness_path)) {
+  comp <- readr::read_csv(completeness_path, show_col_types = FALSE)
+} else {
+  comp <- tibble::tibble(variable = character(), n_munis_with_data = integer(),
+                         pct_munis = numeric(), source = character())
+  warning("completeness_final.csv not found — run 04_assemble_panel.R first.")
+}
+```
+
+## Data Sources & Availability {.tabset}
+
+::: {.panel-tabset}
+
+### Overview
+
+```{r overview-table}
+comp_summary <- comp |>
+  dplyr::group_by(source) |>
+  dplyr::summarise(
+    n_vars     = dplyr::n(),
+    pct_min    = round(min(pct_munis), 1),
+    pct_median = round(median(pct_munis), 1),
+    pct_max    = round(max(pct_munis), 1),
+    n_zero     = sum(pct_munis == 0),
+    n_full     = sum(pct_munis == 100),
+    .groups = "drop"
+  ) |>
+  dplyr::arrange(desc(pct_median))
+
+DT::datatable(
+  comp_summary,
+  colnames = c("Source", "# Variables", "Min %", "Median %", "Max %",
+               "All-NA cols", "100% cols"),
+  rownames = FALSE,
+  options  = list(pageLength = 30, dom = "ftp"),
+  caption  = glue::glue(
+    "{nrow(comp)} variables across {nrow(comp_summary)} sources — ",
+    "coverage = % of 170 PDET municipalities with ≥1 non-NA value"
+  )
+) |>
+  DT::formatStyle(
+    "pct_median",
+    background = DT::styleColorBar(c(0, 100), "#c6efce"),
+    backgroundSize = "98% 88%",
+    backgroundRepeat = "no-repeat",
+    backgroundPosition = "center"
+  ) |>
+  DT::formatStyle(
+    "n_zero",
+    color = DT::styleInterval(0, c("black", "#b2182b")),
+    fontWeight = DT::styleInterval(0, c("normal", "bold"))
+  )
+```
+
+### All Variables
+
+Full searchable table of every variable in the panel with its completeness.
+
+```{r all-vars-table}
+DT::datatable(
+  comp |>
+    dplyr::arrange(source, desc(pct_munis)) |>
+    dplyr::select(Source = source, Variable = variable,
+                  `N munis with data` = n_munis_with_data,
+                  `% coverage` = pct_munis),
+  rownames = FALSE,
+  filter   = "top",
+  options  = list(
+    pageLength = 25,
+    dom        = "lfrtip",
+    columnDefs = list(list(targets = 3, className = "dt-right"))
+  ),
+  caption = "One row per variable — filter by source or search by name"
+) |>
+  DT::formatStyle(
+    "% coverage",
+    background = DT::styleColorBar(c(0, 100), "#c6efce"),
+    backgroundSize = "98% 88%",
+    backgroundRepeat = "no-repeat",
+    backgroundPosition = "center"
+  ) |>
+  DT::formatStyle(
+    "% coverage",
+    color = DT::styleInterval(c(1, 50, 90),
+                               c("#b2182b", "#d6604d", "#555", "#1b7837"))
+  )
+```
+
+### Conflict & Violence
+
+CNMH event types, UCDP, VERDATA, police injuries, false positives.
+
+```{r conflict-missingness}
+conf_sources <- c("cnmh", "ucdp", "jep", "cerac", "daly", "aponte")
+conf_comp <- dplyr::filter(comp, source %in% conf_sources |
+                                  (category == "Violence & Conflict"))
+
+DT::datatable(
+  conf_comp |>
+    dplyr::arrange(source, desc(pct_munis)) |>
+    dplyr::select(Source = source, Variable = variable,
+                  `N munis` = n_munis_with_data, `% coverage` = pct_munis),
+  rownames = FALSE,
+  filter   = "top",
+  options  = list(pageLength = 20, dom = "lfrtip")
+) |>
+  DT::formatStyle(
+    "% coverage",
+    background = DT::styleColorBar(c(0, 100), "#fadbd8"),
+    backgroundSize = "98% 88%",
+    backgroundRepeat = "no-repeat",
+    backgroundPosition = "center"
+  )
+```
+
+### Peacebuilding & Justice
+
+SIIPO, Pilar 1 investment, SLJ, Casas de Justicia, Conciliadores, PDET initiatives.
+
+```{r peace-missingness}
+peace_sources <- c("art", "apc", "pdet", "slj", "casjust", "concil", "urt")
+peace_comp <- dplyr::filter(comp, source %in% peace_sources |
+                                   category %in% c("Peacebuilding & Implementation",
+                                                    "Justice & Dispute Resolution"))
+
+DT::datatable(
+  peace_comp |>
+    dplyr::arrange(source, desc(pct_munis)) |>
+    dplyr::select(Source = source, Variable = variable,
+                  `N munis` = n_munis_with_data, `% coverage` = pct_munis),
+  rownames = FALSE,
+  filter   = "top",
+  options  = list(pageLength = 20, dom = "lfrtip")
+) |>
+  DT::formatStyle(
+    "% coverage",
+    background = DT::styleColorBar(c(0, 100), "#d4edda"),
+    backgroundSize = "98% 88%",
+    backgroundRepeat = "no-repeat",
+    backgroundPosition = "center"
+  )
+```
+
+### Controls & Structural
+
+DNP Panel General, DNP Fiscal, GINI, PRIO-GRID, Territorial.
+
+```{r controls-missingness}
+ctrl_sources <- c("dnp", "igac", "prio", "ant")
+ctrl_comp <- dplyr::filter(comp, source %in% ctrl_sources |
+                                  category %in% c("Socioeconomic & Structural",
+                                                   "Geographic & Territorial"))
+
+DT::datatable(
+  ctrl_comp |>
+    dplyr::arrange(source, desc(pct_munis)) |>
+    dplyr::select(Source = source, Variable = variable,
+                  `N munis` = n_munis_with_data, `% coverage` = pct_munis),
+  rownames = FALSE,
+  filter   = "top",
+  options  = list(pageLength = 20, dom = "lfrtip")
+) |>
+  DT::formatStyle(
+    "% coverage",
+    background = DT::styleColorBar(c(0, 100), "#dce9f5"),
+    backgroundSize = "98% 88%",
+    backgroundRepeat = "no-repeat",
+    backgroundPosition = "center"
+  )
+```
+
+:::
+
+---
+
+## MAUP Decisions Log
+
+```{r maup-log}
+maup_log <- tibble::tribble(
+  ~Decision,                      ~Choice,                                  ~Rationale,                                                                                          ~Script,             ~Date,
+  "Primary spatial unit",         "Municipality polygon (GADM L2)",         "Unit of policy intervention (PDET designation is municipal); standard in Colombian conflict lit.", "01_build_geometry.R", "2026-03-14",
+  "CRS for area calculations",    "MAGNA-SIRGAS / EPSG:3116",               "Colombian national projected CRS; minimizes area distortion.",                                      "01_build_geometry.R", "2026-03-14",
+  "UCDP point-to-polygon join",   "st_within + nearest-feature fallback",   "st_nearest_feature as fallback when point falls outside polygon (coastal/island municipalities).", "03_ucdp_maup.R",      "2026-03-14",
+  "UCDP boundary buffer",         "5 km from internal boundaries",          "Events within 5 km flagged; sensitivity tested at 1, 2, 5, 10, 20 km.",                            "03_ucdp_maup.R",      "2026-03-16",
+  "Spatial weights (primary)",    "Queen contiguity, W-standardized",       "Standard choice; compared against rook and knn4.",                                                  "03_ucdp_maup.R",      "2026-03-16",
+  "DANE code merge strategy",     "Exact DANE code only (no fuzzy)",        "All joins by exact 5-digit DANE code; name lookup only for geometry attachment.",                  "02_build_tabular_panel.R","2026-04-04",
+  "Panel format",                 "Long (170 munis × 25 years = 9,251 rows)","One row per municipality × year; static variables broadcast across all years.",                  "04_assemble_panel.R", "2026-04-04",
+  "VERDATA aggregation",          "Mean of 100 replicas + 95% CI cols",     "Accounts for uncertainty in VERDATA posterior; CI available for sensitivity analysis.",            "spatial/spatial_joins.R","2026-03-14",
+  "PDET filter for maps",         "All Colombia outline + PDET data",       "Non-PDET shown as gray polygon outline; data shown only for PDET (n=170).",                        "R/setup.R",           "2026-03-20",
+  "Spatial weights for PDET-only","Queen, PDET polygons only",              "For regime models restricted to n=170; built on PDET subset to avoid ghost neighbors.",            "panel3_regression.qmd","TODO"
+)
+
+DT::datatable(
+  maup_log,
+  rownames = FALSE,
+  options  = list(pageLength = 15, dom = "ftp"),
+  caption  = "Spatial modeling decisions log"
+)
+```
+
+---
+
+## Crosswalk Diagnostics
+
+```{r crosswalk-diag}
+# Show match rates from pipeline output
+if (nrow(comp) > 0) {
+  xwalk <- comp |>
+    dplyr::group_by(source) |>
+    dplyr::summarise(
+      munis_at_100pct = sum(pct_munis == 100),
+      munis_any_data  = round(max(pct_munis), 1),
+      .groups = "drop"
+    ) |>
+    dplyr::arrange(desc(munis_any_data))
+
+  DT::datatable(
+    xwalk,
+    colnames = c("Data Source", "Variables at 100%", "Best coverage (%)"),
+    rownames = FALSE,
+    options  = list(pageLength = 20, dom = "ft")
+  )
+} else {
+  cat("> Run 04_assemble_panel.R to populate completeness diagnostics.\n")
+}
+```
+
+---
+
+## Gap Analysis vs. Proposal
+
+```{r gap-analysis}
+gaps <- tibble::tribble(
+  ~`Dataset`,                       ~`Status`,    ~`Notes`,
+  "CNMH Casos (11 event types)",    "✅ In panel", "V_*__cnmh; 161/170 munis",
+  "UCDP GED v25.1",                 "✅ In panel", "V_conflict_events/battle_deaths__ucdp; MAUP outputs in output/",
+  "VERDATA Homicidio",              "✅ In panel", "V_homicides_mean__jep; 100 replicas mean + CI",
+  "False Positives / Extrajudicial","✅ In panel", "V_false_positive/extrajudicial__cerac; 169/170 munis",
+  "Daly Paramilitary (to 2015)",    "✅ In panel", "V_criminal_pact/political_violence__daly; 170/170 munis",
+  "Aponte González Control Data",   "✅ In panel", "V_territorial_control/coca__aponte; 76/170 munis (armed group presence zones)",
+  "SIIPO Implementation Index",     "✅ In panel", "P_impl_*__art; pivoted wider (18 pilars); 170/170 munis",
+  "Pilar 1 Investment",             "✅ In panel", "P_pilar1_investment_cop__art; 146/170 munis",
+  "ART Obras Terminadas",           "✅ In panel", "P_n_projects/investment_total__art; muni×year construction projects",
+  "APC Cooperación Internacional",  "✅ In panel", "P_aid_usd/n_interventions__apc; 10,501/10,525 rows matched via divipola",
+  "PDET Iniciativas",               "✅ In panel", "P_n_initiatives_*__pdet; static counts by pilar",
+  "CNMH Memory Initiatives",        "✅ In panel", "P_n_memory_initiatives__cnmh",
+  "SLJ / Casas de Justicia",        "✅ In panel", "J_n_justice_rooms/slj_present__slj; J_n_cases_processed__casjust",
+  "Conciliadores en Equidad",       "✅ In panel", "J_n_conciliadores/conciliation_requests__concil",
+  "URT Land Restitution",           "✅ In panel", "J_n_restitution_sentences__urt",
+  "DNP Panel Caracteristicas",      "✅ In panel", "S_pop/gdp/nbi/ipm/poverty__dnp; 170/170 munis",
+  "DNP Fiscal / TerriData",         "✅ In panel", "S_income_total_pc/tax_income_pc__dnp; per-capita only",
+  "GINI Municipal (IGAC 2023)",     "✅ In panel", "S_gini_land__igac; 161/170 munis",
+  "PRIO-GRID (static + time-var)",  "✅ In panel", "G_terrain/nightlight/forest__prio",
+  "Territorial (ANT)",              "✅ In panel", "G_indigenous/afro/peasant_pct__ant",
+  "DNP Capacidad Fiscal",           "⚠️ 0% values", "File loaded but values all NA — investigate DNP fiscal format",
+  "Lesiones Policiales",            "⚠️ 0% values", "Source file empty or key column mismatch — dropped from panel",
+  "Rutas de Implementacion Activa", "❌ Pending",  "No DANE code column; needs manual inspection",
+  "PNIS Matriz",                    "❌ Pending",  "No DANE code column; wide format needs restructuring",
+  "AvanceMensualRIA",               "❌ Missing",  "File not in Dropbox — check sync",
+  "Veedurías Ciudadanas",           "❌ Pending",  "33 dept xlsx; name-based join needed",
+  "Elecciones",                     "❌ Pending",  "Electoral results; key column TBD"
+)
+
+DT::datatable(
+  gaps,
+  rownames = FALSE,
+  escape   = FALSE,
+  options  = list(pageLength = 30, dom = "ftp"),
+  caption  = "Dataset tracking — pipeline status as of 2026-04-04"
+) |>
+  DT::formatStyle(
+    "Status",
+    color = DT::styleEqual(
+      c("✅ In panel", "⚠️ 0% values", "❌ Pending", "❌ Missing"),
+      c("#1b7837",    "#c8923a",       "#b2182b",    "#555555")
+    )
+  )
+```

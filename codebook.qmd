@@ -1,0 +1,227 @@
+---
+title: "Codebook"
+subtitle: "Variable dictionary for the PDET municipality panel"
+date: last-modified
+---
+
+```{r setup, include=FALSE}
+source(here::here("R", "setup.R"))
+library(DT)
+
+# Load completeness report
+comp_path <- file.path(OUTPUT_DIR, "completeness_final.csv")
+if (file.exists(comp_path)) {
+  comp <- readr::read_csv(comp_path, show_col_types = FALSE)
+} else {
+  comp <- tibble::tibble(variable = character(), n_munis_with_data = integer(),
+                         pct_munis = numeric(), source = character(),
+                         category = character())
+  warning("completeness_final.csv not found — run 04_assemble_panel.R first.")
+}
+```
+
+## Panel Overview
+
+```{r panel-overview}
+n_munis <- dplyr::n_distinct(panel$dane_code)
+n_years <- dplyr::n_distinct(panel$year)
+yr_range <- range(panel$year, na.rm = TRUE)
+data_vars <- setdiff(names(panel), c("dane_code", "year", "muni_name", "dept_name", "subregion"))
+
+overview <- tibble::tribble(
+  ~Metric,                ~Value,
+  "Municipalities (PDET)", as.character(n_munis),
+  "Years",                 sprintf("%d–%d (%d years)", yr_range[1], yr_range[2], n_years),
+  "Total rows",            format(nrow(panel), big.mark = ","),
+  "Data variables",        as.character(length(data_vars)),
+  "Sources",               as.character(dplyr::n_distinct(comp$source))
+)
+
+knitr::kable(overview, col.names = c("", ""), align = "lr")
+```
+
+## Naming Convention
+
+All variables follow the pattern: **`{Category}_{name}__{source}`**
+
+| Code | Category | Example |
+|---|---|---|
+| `V` | Violence & Conflict | `V_massacre_cases__cnmh` |
+| `P` | Peacebuilding & Implementation | `P_impl_education__art` |
+| `J` | Justice & Dispute Resolution | `J_n_conciliadores__concil` |
+| `S` | Socioeconomic & Structural | `S_nbi__dnp` |
+| `G` | Geographic & Territorial | `G_nightlight__prio` |
+
+### Source Abbreviations
+
+| Abbrev | Full Name |
+|---|---|
+| `cnmh` | Centro Nacional de Memoria Histórica |
+| `ucdp` | Uppsala Conflict Data Program (GED v25.1) |
+| `jep` | JEP / VERDATA statistical homicide estimates |
+| `cerac` | CERAC False Positives dataset |
+| `daly` | Daly paramilitary-mayor pacts dataset |
+| `aponte` | Aponte González armed group control data |
+| `art` | Agencia de Renovación del Territorio (SIIPO, Pilar 1, Obras) |
+| `apc` | Agencia Presidencial de Cooperación Internacional |
+| `pdet` | PDET peace initiative counts |
+| `slj` | Sistemas Locales de Justicia |
+| `casjust` | Casas de Justicia |
+| `concil` | Conciliadores en Equidad / Solicitudes de Conciliación |
+| `urt` | Unidad de Restitución de Tierras |
+| `dnp` | Departamento Nacional de Planeación (Panel General + Fiscal) |
+| `igac` | IGAC (GINI municipal + Gestores Catastrales) |
+| `prio` | Peace Research Institute Oslo (PRIO-GRID) |
+| `ant` | Agencia Nacional de Tierras (Resguardos, Zonas Reserva, Consejos) |
+
+---
+
+## Full Variable Dictionary {.tabset}
+
+::: {.panel-tabset}
+
+### Searchable Table
+
+```{r codebook-table}
+if (nrow(comp) > 0) {
+  DT::datatable(
+    comp |>
+      dplyr::select(
+        Category    = category,
+        Source      = source,
+        Variable    = variable,
+        `N munis`   = n_munis_with_data,
+        `% coverage` = pct_munis
+      ) |>
+      dplyr::arrange(Category, Source, dplyr::desc(`% coverage`)),
+    rownames = FALSE,
+    filter   = "top",
+    escape   = FALSE,
+    options  = list(
+      pageLength = 40,
+      dom        = "lfrtip",
+      columnDefs = list(
+        list(targets = c(3, 4), className = "dt-right")
+      )
+    ),
+    caption = htmltools::tags$caption(
+      style = "caption-side: top; text-align: left; font-size: 0.9em;",
+      sprintf("Full codebook: %d variables, %d sources, %d categories",
+              nrow(comp), dplyr::n_distinct(comp$source), dplyr::n_distinct(comp$category))
+    )
+  ) |>
+    DT::formatStyle(
+      "% coverage",
+      background = DT::styleColorBar(c(0, 100), "#c6efce"),
+      backgroundSize = "98% 88%",
+      backgroundRepeat = "no-repeat",
+      backgroundPosition = "center"
+    ) |>
+    DT::formatStyle(
+      "% coverage",
+      color = DT::styleInterval(c(1, 50, 90),
+                                 c("#b2182b", "#d6604d", "#555", "#1b7837"))
+    ) |>
+    DT::formatStyle(
+      "Category",
+      color = DT::styleEqual(
+        c("Violence & Conflict", "Peacebuilding & Implementation",
+          "Justice & Dispute Resolution", "Socioeconomic & Structural",
+          "Geographic & Territorial"),
+        c("#b2182b", "#1b7837", "#2166ac", "#8c510a", "#542788")
+      ),
+      fontWeight = "bold"
+    )
+} else {
+  cat("> No data available. Run the pipeline first.\n")
+}
+```
+
+### By Category
+
+```{r by-category}
+if (nrow(comp) > 0) {
+  cat_summary <- comp |>
+    dplyr::group_by(category) |>
+    dplyr::summarise(
+      `N variables`     = dplyr::n(),
+      `N sources`       = dplyr::n_distinct(source),
+      `Min coverage`    = round(min(pct_munis), 1),
+      `Median coverage` = round(median(pct_munis), 1),
+      `Max coverage`    = round(max(pct_munis), 1),
+      .groups = "drop"
+    ) |>
+    dplyr::arrange(dplyr::desc(`N variables`))
+
+  DT::datatable(
+    cat_summary,
+    rownames = FALSE,
+    options  = list(pageLength = 10, dom = "t"),
+    caption  = "Summary by thematic category"
+  ) |>
+    DT::formatStyle(
+      "Median coverage",
+      background = DT::styleColorBar(c(0, 100), "#c6efce"),
+      backgroundSize = "98% 88%",
+      backgroundRepeat = "no-repeat",
+      backgroundPosition = "center"
+    )
+}
+```
+
+### By Source
+
+```{r by-source}
+if (nrow(comp) > 0) {
+  src_summary <- comp |>
+    dplyr::group_by(source, category) |>
+    dplyr::summarise(
+      `N vars`          = dplyr::n(),
+      `Median coverage` = round(median(pct_munis), 1),
+      .groups = "drop"
+    ) |>
+    dplyr::arrange(dplyr::desc(`Median coverage`))
+
+  DT::datatable(
+    src_summary,
+    rownames = FALSE,
+    options  = list(pageLength = 20, dom = "ft"),
+    caption  = "Coverage summary by data source"
+  ) |>
+    DT::formatStyle(
+      "Median coverage",
+      background = DT::styleColorBar(c(0, 100), "#c6efce"),
+      backgroundSize = "98% 88%",
+      backgroundRepeat = "no-repeat",
+      backgroundPosition = "center"
+    )
+}
+```
+
+:::
+
+---
+
+## Data Sources
+
+| Source | Institution | Period | Category |
+|---|---|---|---|
+| DNP Panel General | Dept. Nacional de Planeación | 2000–2023 | S |
+| DNP Fiscal | DNP TerriData | 2000–2023 | S |
+| CNMH Casos | Centro Nacional de Memoria Histórica | 1958–2023 | V |
+| UCDP GED v25.1 | Uppsala Conflict Data Program | 1989–2024 | V |
+| VERDATA / JEP | JEP Statistical Commission | 1985–2018 | V |
+| False Positives | CERAC | 2000–2010 | V |
+| Daly Paramilitary | Academic dataset | 1981–2019 | V |
+| Aponte González | Academic dataset | 2000–2012 | V |
+| SIIPO | Agencia de Renovación del Territorio | 2017–2021 | P |
+| APC Cooperación | Agencia Presidencial de Cooperación | 2018–2025 | P |
+| ART Obras | Agencia de Renovación del Territorio | 2012–2025 | P |
+| Pilar 1 Investment | ART / DNP | 2016–2025 | P |
+| PDET Initiatives | ART | Static | P |
+| PRIO-GRID | Peace Research Institute Oslo | Static + 1990–2020 | G |
+| Territorial / ANT | Agencia Nacional de Tierras | Static | G |
+| GINI | IGAC 2023 | Static | S |
+| SLJ / Casas de Justicia | Min. Justicia | Static + year-varying | J |
+| Conciliadores | Min. Justicia | 1993–2024 | J |
+| URT | Unidad de Restitución de Tierras | Static | J |

@@ -1,0 +1,25 @@
+# Quarto cache and temp files
+.quarto/
+*_cache/
+*_files/
+
+# R session
+.Rhistory
+.RData
+.Rproj.user/
+
+# Large data files — NOT committed (too large, some sensitive)
+# Output RDS/CSV files live in Dissertation/01. data/output/ on Google Drive
+data/*.rds
+data/*.csv
+data/*.parquet
+
+# Rendered output IS committed (freeze: auto)
+# docs/ is included — it's what GitHub Pages serves
+
+# OS
+.DS_Store
+Thumbs.db
+
+/.quarto/
+**/*.quarto_ipynb
